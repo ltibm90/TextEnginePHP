@@ -11,15 +11,12 @@ class TextEvulator
 	public $NoParseEnabled = true;
 	public $ParamChar = '%';
 	public $Aliasses = array();
-	public $AutoClosedTags = array('elif', 'else', 'return', 'break', 'continue', 'include', 'renderSection', 'cm', 'set', 'unset');
 	public $GlobalParameters = array();
 	/** @var ArrayGroup */
 	public $LocalVariables;
 	public $ParamNoAttrib = false;
 	public $DecodeAmpCode = false;
 	public $AmpMaps = array();
-	public $ConditionalTags = array();
-	public $NoAttributedTags = array();
 	public $SupportCDATA = false;
 	public $SupportExclamationTag = false;
 	public $AllowXMLTag = true;
@@ -31,6 +28,8 @@ class TextEvulator
 	public $DefineParameters = array();
 	/** @var SavedMacros */
 	public $SavedMacrosList;
+	/** @var TextElementInfos */
+	public $TagInfos;
 	/** @var EvulatorTypesClass */
 	public $EvulatorTypes;
 	/** @var bool */
@@ -38,6 +37,7 @@ class TextEvulator
 
 	public function __construct($text = null, $isfile = false)
 	{
+		$this->TagInfos = new TextElementInfos();
 		$this->EvulatorTypes = new EvulatorTypesClass();
 		$this->SavedMacrosList = new SavedMacros();
 		$this->Elements = new TextElement();
@@ -49,15 +49,32 @@ class TextEvulator
 		} else {
 			$this->Text = $text;
 		}
-		$this->InitNoAttributedTags();
+		$this->InitStockTagOptions();
 		$this->InitEvulator();
 		$this->InitAmpMaps();
-		$this->InitConditionalTags();
+	}
+	private function InitStockTagOptions()
+	{
+		$this->TagInfos["elif"]->IsAutoClosedTag = true;
+		$this->TagInfos["else"]->IsAutoClosedTag = true;
+		$this->TagInfos["return"]->IsAutoClosedTag = true;
+		$this->TagInfos["break"]->IsAutoClosedTag = true;
+		$this->TagInfos["continue"]->IsAutoClosedTag = true;
+		$this->TagInfos["include"]->IsAutoClosedTag = true;
+		$this->TagInfos["cm"]->IsAutoClosedTag = true;
+		$this->TagInfos["set"]->IsAutoClosedTag = true;
+		$this->TagInfos["unset"]->IsAutoClosedTag = true;
+		$this->TagInfos["if"]->IsNoAttributedTag = true;
+		$this->TagInfos["if"]->IsConditionalTag = true;
+		$this->TagInfos["include"]->IsConditionalTag = true;
+		$this->TagInfos["set"]->IsConditionalTag = true;
+		$this->TagInfos["set"]->IsConditionalTag = true;
 	}
 	private function InitEvulator()
 	{
 		$this->EvulatorTypes->Param = "ParamEvulator";
 		$this->EvulatorTypes->GeneralType = "GeneralEvulator";
+		$this->EvulatorTypes->Text = "TexttagEvulator";
 		$this->EvulatorTypes["if"] = "IfEvulator";
 		$this->EvulatorTypes["for"] = "ForEvulator";
 		$this->EvulatorTypes["foreach"] = "ForeachEvulator";
@@ -72,17 +89,6 @@ class TextEvulator
 		$this->EvulatorTypes["include"] = "IncludeEvulator";
 		$this->EvulatorTypes["set"] = "SetEvulator";
 		$this->EvulatorTypes["unset"] = "UnsetEvulator";
-	}
-	private function InitNoAttributedTags()
-	{
-		$this->NoAttributedTags[] = "if";
-	}
-	private function InitConditionalTags()
-	{
-		$this->ConditionalTags[] = "if";
-		$this->ConditionalTags[] = "include";
-		$this->ConditionalTags[] = "set";
-		$this->ConditionalTags[] = "unset";
 	}
 	private function InitAmpMaps()
 	{
@@ -104,7 +110,7 @@ class TextEvulator
 	}
 	public function OnTagClosed($element)
 	{
-		if (!$this->AllowParseCondition || !$this->IsParseMode || !in_array($element->ElemName, $this->ConditionalTags)) return;
+		if (!$this->AllowParseCondition || !$this->IsParseMode || (!$this->TagInfos->HasTagInfo($element->ElemName) || !$this->TagInfos[$element->ElemName]->IsConditionalTag)) return;
 		$indis = $element->Index();
 		$element->Parent->EvulateValue($indis, $indis + 1);
 	}

@@ -13,6 +13,7 @@ abstract class BaseEvulator
 	 * @return TextEvulateResult
 	 */
 	public abstract function Render(&$tag, &$vars);
+	function RenderFinish(&$tag, &$vars, &$latestResult){}
 	protected function EvulateTextCustomParams($text, &$parameters)
 	{
 		$pardecoder = new ParDecoder($text);

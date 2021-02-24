@@ -27,7 +27,8 @@ class TextElement
 		if($prop == "ElemName")
 		{
 			$this->elemName = $val;
-			if($this->BaseEvulator && in_array(strtolower($val), $this->BaseEvulator->NoAttributedTags))
+			$this->NoAttrib = false;
+			if ($this->BaseEvulator != null && $this->BaseEvulator->TagInfos->HasTagInfo($val) && $this->BaseEvulator->TagInfos[$val]->IsNoAttributedTag)
 			{
 				$this->NoAttrib = true;
 			}
@@ -423,6 +424,11 @@ class TextElement
 			return null;
 		}
 		if ($this->ElemName == '#text') {
+			if($this->BaseEvulator->EvulatorTypes->Text != "" && class_exists($this->BaseEvulator->EvulatorTypes->Text))
+			{
+				$evulator = new $this->BaseEvulator->EvulatorTypes->Text($this->BaseEvulator);
+				return $evulator->Render($this, $vars);
+			}
 			$result->TextContent = $this->Value;
 			return $result;
 		}
@@ -469,11 +475,20 @@ class TextElement
 			{
 				
 				$evulatorObj = new $className($this->BaseEvulator);
+				unset($vresult);
 				$vresult = $evulatorObj->Render($subElement, $vars);
-				if (!$vresult) continue;
-				if ($vresult->Result == TextEvulateResult::EVULATE_DEPTHSCAN) {
-					$vresult = $subElement->EvulateValue($vresult->Start, $vresult->End, $vars);
+				if (!$vresult)
+				{
+					$evulatorObj->RenderFinish($subElement, $vars, $vresult);
+					continue;
 				}
+				if ($vresult->Result == TextEvulateResult::EVULATE_DEPTHSCAN) {
+					$nresult = $subElement->EvulateValue($vresult->Start, $vresult->End, $vars);
+					unset($vresult);
+					$vresult = &$nresult;
+				}
+				$evulatorObj->RenderFinish($subElement, $vars, $vresult);
+				if(!$vresult) continue;
 			
 			}
 			else 

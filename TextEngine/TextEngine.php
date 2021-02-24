@@ -2,6 +2,8 @@
 if(!defined("TE_PATH_PREFIX")) define("TE_PATH_PREFIX", "");
 if(!defined("TE_CUSTOM_EVULATOR_PATH")) define("TE_CUSTOM_EVULATOR_PATH", "");
 if(!defined("TE_INCLUDEBASE")) define("TE_INCLUDEBASE", __DIR__);
+require_once TE_PATH_PREFIX . 'Text/TextElementInfos.php';
+require_once TE_PATH_PREFIX . 'Text/TextElementInfo.php';
 require_once TE_PATH_PREFIX . 'Text/TextEvulator.php';
 require_once TE_PATH_PREFIX . 'Text/TextElements.php';
 require_once TE_PATH_PREFIX .'Text/TextElement.php';

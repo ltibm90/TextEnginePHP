@@ -55,10 +55,11 @@ class TextEvulatorParser
 
 					if (!$prevtag->NameEquals($tag->ElemName, true)) {
 						$elem = new TextElement();
+						$elem->BaseEvulator = &$this->Evulator;
 						$elem->ElemName = $prevtag->ElemName;
 						$elem->ElemAttr = $prevtag->ElemAttr;
 						$elem->Autoadded = true;
-						$elem->BaseEvulator = &$this->Evulator;
+
 						$prevtag->Closed = true;
 						if ($previtem != null) {
 							$previtem->Parent = &$elem;
@@ -256,6 +257,7 @@ class TextEvulatorParser
 					$parent->AddElement($tagElement);
 					$elem = new TextElement();
 					$elem->Parent = $parent;
+
 					$elem->ElemName = $this->Evulator->NoParseTag;
 					$elem->SlashUsed = true;
 					$this->in_noparse = false;
@@ -514,7 +516,8 @@ class TextEvulatorParser
 						$tagElement->DirectClosed = true;
 						$tagElement->Closed = true;
 					}
-					if(array_value_exists(strtolower($tagElement->ElemName), $this->Evulator->AutoClosedTags))
+					$elname = strtolower($tagElement->ElemName);
+					if ($this->Evulator->TagInfos->HasTagInfo($elname) && $this->Evulator->TagInfos[$elname]->IsAutoClosedTag)
 					{
 						$tagElement->Closed = true;
 						$tagElement->AutoClosed = true;
