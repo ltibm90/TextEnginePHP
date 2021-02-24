@@ -34,6 +34,7 @@ class TextEvulator
 	public $EvulatorTypes;
 	/** @var bool */
 	public $IsParseMode;
+	public $CustomData = array();
 
 	public function __construct($text = null, $isfile = false)
 	{
