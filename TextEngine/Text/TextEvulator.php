@@ -34,8 +34,8 @@ class TextEvulator
 	public $EvulatorTypes;
 	/** @var bool */
 	public $IsParseMode;
-	public $CustomData = array();
-
+	public $CustomDataDictionary = array();
+	public $CustomDataSingle;
 	public function __construct($text = null, $isfile = false)
 	{
 		$this->TagInfos = new TextElementInfos();
