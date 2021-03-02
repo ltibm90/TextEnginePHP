@@ -67,7 +67,7 @@ class TextEvulator
 		$this->TagInfos["cm"]->Flags = TextElementFlags::TEF_AutoClosedTag;
 		$this->TagInfos["set"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
 		$this->TagInfos["unset"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
-		$this->TagInfos["if"]->IsNoAttributedTag = TextElementFlags::TEF_NoAttributedTag | TextElementFlags::TEF_ConditionalTag;
+		$this->TagInfos["if"]->Flags = TextElementFlags::TEF_NoAttributedTag | TextElementFlags::TEF_ConditionalTag;
 		
 	}
 	private function InitEvulator()

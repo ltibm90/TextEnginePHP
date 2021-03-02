@@ -60,6 +60,7 @@ class IncludeEvulator extends BaseEvulator
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
 		
 		$parse = $tag->GetAttribute('parse', true);
+				
 		$content = file_get_contents($loc);
 		$result = new TextEvulateResult();
 		if($parse === 'false' || !$parse)

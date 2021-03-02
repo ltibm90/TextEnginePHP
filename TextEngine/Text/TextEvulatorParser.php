@@ -425,8 +425,7 @@ class TextEvulatorParser
 						$istagattrib = false;
 					}
 					else if (!$tagattribonly && !empty($currentName)) {
-
-						$tagElement->ElemAttr[$currentName] = $current;
+						$tagElement->ElemAttr->SetAttribute($currentName, $current);
 					}
 					$currentName = '';
 					$current = '';
@@ -521,9 +520,9 @@ class TextEvulatorParser
 						$istagattrib = false;
 					}
 					else if (!$tagattribonly && !empty($currentName)) {
-						$tagElement->ElemAttr[$currentName] = $current;
+						$tagElement->ElemAttr->SetAttribute($currentName, $current);
 					} else if (!$tagattribonly && !empty($current)) {
-						$tagElement->ElemAttr[$current] = '';
+						$tagElement->ElemAttr->SetAttribute($current, '');
 					}
 					$tagElement->SlashUsed = $firstslashused;
 					if ($lastslashused) {
@@ -560,12 +559,12 @@ class TextEvulatorParser
 							$istagattrib = false;
 						}
 						else if (!$tagattribonly && !empty($currentName)) {
-							$tagElement->ElemAttr[$currentName] = $current;
+							$tagElement->ElemAttr->SetAttribute($currentName, $current);
 							$current = '';
 							$currentName = '';
 							$quoted = false;
 						} else if (!$tagattribonly && !empty($current)) {
-							$tagElement->ElemAttr[$current] = '';
+							$tagElement->ElemAttr->SetAttribute($current, '');
 							$current = '';
 							$quoted = false;
 						}

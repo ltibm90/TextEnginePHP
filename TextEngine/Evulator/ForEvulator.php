@@ -42,7 +42,6 @@ class ForEvulator extends BaseEvulator
 			$localVars[$varname] = $i;
 			//$this->SetVar($varname, $i);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
-
 			if(!$cresult) continue;
 			$result->TextContent .= $cresult->TextContent;
 			if($cresult->Result == TextEvulateResult::EVULATE_RETURN)

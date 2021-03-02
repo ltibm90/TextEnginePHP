@@ -6,27 +6,35 @@ class CMEvulator extends BaseEvulator
 	public function Render(&$tag, &$vars)
 	{
 		//$name = $tag->GetAttribute("__name");
-		$name = key($tag->ElemAttr);
+		$name = $tag->ElemAttr->GetFirstKey();
 		if(!isset($name) || empty($name)) return null;
 		$cr = $this->ConditionSuccess($tag, 'if');
 		if(!$cr) return null;
 		if(!$name) return null;
+		
 		$element = $this->GetMacroElement($name);
 		if($element)
 		{
 			$newelement = array();
-			$newelement = $element->ElemAttr;
-			unset($newelement['name']);
-			foreach ($tag->ElemAttr as $key => $value) {
+			foreach ($element->ElemAttr as $key => $value) 
+			{
+				if($value->Name == "name") continue;
 				//if(str_startswith($key, '__')) continue;
-				if($key == 'name') continue;
 				//$newelement[$key] = $key;
 				//$this->StorePreviousValue($key);
 				//$this->Evulator->localVariables[$key] = $this->EvulateText($value);
-				
-				$newelement[$key] = $this->EvulateText($value, $vars);
+				$newelement[$value->Name] = $this->EvulateText($value->Value, $vars);
 			}
-	
+		
+			foreach ($tag->ElemAttr as $key => $value) {
+			
+				if($value->Name == $name) continue;
+				//if(str_startswith($key, '__')) continue;
+				//$newelement[$key] = $key;
+				//$this->StorePreviousValue($key);
+				//$this->Evulator->localVariables[$key] = $this->EvulateText($value);
+				$newelement[$value->Name] = $this->EvulateText($value->Value, $vars);
+			}
 			$result = $element->EvulateValue(0, 0, $newelement);
 			//foreach ($newelement as $index => $item) {
 			//	$this->RemoveVar($index);

@@ -71,6 +71,7 @@ abstract class BaseEvulator
 		$condition = ($tag->NoAttrib) ? $tag->Value : $tag->GetAttribute($attr);
 		if($condition === null) return true;
 		$res = $this->EvulateText($condition);
+
 		return $res;
 	}
 }

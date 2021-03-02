@@ -58,7 +58,7 @@ class IfEvulator  extends  BaseEvulator
 			$elseitem = $tag->GetSubElement('elif', 'else');
 			if($elseitem)
 			{
-				$result->End = $elseitem->index;
+				$result->End = $elseitem->Index();
 			}
 			$result->Result = TextEvulateResult::EVULATE_DEPTHSCAN;
 		}
@@ -70,7 +70,7 @@ class IfEvulator  extends  BaseEvulator
 			{
 				if($elseitem->elemName == 'else')
 				{
-					$result->Start = $elseitem->index + 1;
+					$result->Start = $elseitem->Index() + 1;
 					$result->Result = TextEvulateResult::EVULATE_DEPTHSCAN;
 					return $result;
 				}
@@ -79,11 +79,11 @@ class IfEvulator  extends  BaseEvulator
 
 					if($this->ConditionSuccess($elseitem))
 					{
-						$result->Start = $elseitem->index + 1;
+						$result->Start = $elseitem->Index() + 1;
 						$nextelse = $elseitem->NextElementWN('elif', 'else');
 						if($nextelse)
 						{
-							$result->End = $nextelse->index;
+							$result->End = $nextelse->Index();
 						}
 						$result->Result = TextEvulateResult::EVULATE_DEPTHSCAN;
 						return $result;

@@ -28,16 +28,17 @@ class TextElement
 		{
 			$this->elemName = $val;
 			$this->NoAttrib = false;
-			if ($this->BaseEvulator != null && (($this->GetTagFlags($val) & TextElementFlags::TEF_NoAttributedTag) != 0))
+			if ($this->BaseEvulator != null && (($this->GetTagFlags() & TextElementFlags::TEF_NoAttributedTag) != 0))
 			{
+			
 				$this->NoAttrib = true;
 			}
 			return;
 		}
         $this->$prop = $val;
 	}
-	/** @var array */
-	public $ElemAttr = array();
+	/** @var TextElementAttributes */
+	public $ElemAttr;
 	/** @var TextEvulator */
 	public $BaseEvulator;
 	public $Closed;
@@ -66,6 +67,7 @@ class TextElement
 
 	public function __construct()
 	{
+		$this->ElemAttr = new TextElementAttributes();
 		$this->SubElements = new TextElements();
 	}
 	public function Depth()
@@ -105,16 +107,16 @@ class TextElement
 	}
 	public function HasAttribute($name)
 	{
-		return isset($this->ElemAttr[$name]);
+		return $this->ElemAttr->HasAttribute($name);
 	}
 	public function GetAttribute($name, $default = null)
 	{
-		return array_value($name, $this->ElemAttr, $default);
+		return $this->ElemAttr->GetAttribute($name, $default);
 	}
 
 	public function SetAttribute($name, $value)
 	{
-		$this->ElemAttr[$name] = $value;
+		$this->ElemAttr->SetAttribute($name, $value);
 	}
 
 	public function NameEquals($name, $matchalias = false)
@@ -356,15 +358,15 @@ class TextElement
 	public function PreviousElement()
 	{
 		if ($this->Index() - 1 >= 0) {
-			return $this->parent->SubElements[$this->Index() - 1];
+			return $this->Parent->SubElements[$this->Index() - 1];
 		}
 		return null;
 	}
 
 	public function NextElement()
 	{
-		if ($this->Index() + 1 < $this->parent->SubElementsCount) {
-			return $this->parent->SubElements[$this->Index() + 1];
+		if ($this->Index() + 1 < $this->Parent->SubElementsCount) {
+			return $this->Parent->SubElements[$this->Index() + 1];
 		}
 		return null;
 	}
