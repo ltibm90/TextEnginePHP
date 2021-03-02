@@ -110,9 +110,7 @@ class TextEvulator
 	}
 	public function OnTagClosed($element)
 	{
-		
-		
-		if (!$this->AllowParseCondition || !$this->IsParseMode || (!($this->BaseEvulator->TagInfos->GetElementFlags($element->ElemName) & TextElementFlags::TEF_ConditionalTag) != 0)) return;
+		if (!$this->AllowParseCondition || !$this->IsParseMode || (!($element->GetTagFlags() & TextElementFlags::TEF_ConditionalTag) != 0)) return;
 		$indis = $element->Index();
 		$element->Parent->EvulateValue($indis, $indis + 1);
 	}
