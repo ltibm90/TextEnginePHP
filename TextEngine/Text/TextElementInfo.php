@@ -2,8 +2,6 @@
 class TextElementInfo
 {
 	public $ElementName;
-	public $IsConditionalTag;
-	public $IsNoAttributedTag;
-	public $IsAutoClosedTag;
-	public $CustomData;
+	public $CustomData = array();
+	public $Flags = TextElementFlags::TEF_NONE;
 }

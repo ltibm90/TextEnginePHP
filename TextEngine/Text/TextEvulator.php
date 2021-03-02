@@ -56,20 +56,17 @@ class TextEvulator
 	}
 	private function InitStockTagOptions()
 	{
-		$this->TagInfos["elif"]->IsAutoClosedTag = true;
-		$this->TagInfos["else"]->IsAutoClosedTag = true;
-		$this->TagInfos["return"]->IsAutoClosedTag = true;
-		$this->TagInfos["break"]->IsAutoClosedTag = true;
-		$this->TagInfos["continue"]->IsAutoClosedTag = true;
-		$this->TagInfos["include"]->IsAutoClosedTag = true;
-		$this->TagInfos["cm"]->IsAutoClosedTag = true;
-		$this->TagInfos["set"]->IsAutoClosedTag = true;
-		$this->TagInfos["unset"]->IsAutoClosedTag = true;
-		$this->TagInfos["if"]->IsNoAttributedTag = true;
-		$this->TagInfos["if"]->IsConditionalTag = true;
-		$this->TagInfos["include"]->IsConditionalTag = true;
-		$this->TagInfos["set"]->IsConditionalTag = true;
-		$this->TagInfos["set"]->IsConditionalTag = true;
+		$this->TagInfos["elif"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["else"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["return"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["break"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["continue"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["include"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
+		$this->TagInfos["cm"]->Flags = TextElementFlags::TEF_AutoClosedTag;
+		$this->TagInfos["set"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
+		$this->TagInfos["unset"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
+		$this->TagInfos["if"]->IsNoAttributedTag = TextElementFlags::TEF_NoAttributedTag | TextElementFlags::TEF_ConditionalTag;
+		
 	}
 	private function InitEvulator()
 	{
@@ -111,7 +108,9 @@ class TextEvulator
 	}
 	public function OnTagClosed($element)
 	{
-		if (!$this->AllowParseCondition || !$this->IsParseMode || (!$this->TagInfos->HasTagInfo($element->ElemName) || !$this->TagInfos[$element->ElemName]->IsConditionalTag)) return;
+		
+		
+		if (!$this->AllowParseCondition || !$this->IsParseMode || (!($this->BaseEvulator->TagInfos->GetElementFlags($element->ElemName) & TextElementFlags::TEF_ConditionalTag) != 0)) return;
 		$indis = $element->Index();
 		$element->Parent->EvulateValue($indis, $indis + 1);
 	}

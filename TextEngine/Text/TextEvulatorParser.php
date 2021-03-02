@@ -293,6 +293,8 @@ class TextEvulatorParser
 		$quoted = false;
 		$quotchar = null;
 		$initial =false;
+		$istagattrib = false;
+		$tagattribonly = false;
 		for ($i = $this->pos; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			
@@ -390,17 +392,11 @@ class TextEvulatorParser
 				$i = $this->pos;
 				continue;
 			}
-			if($tagElement->ElementType == TextElementType::Parameter && $this->Evulator->ParamNoAttrib)
+			if(($tagElement->ElementType == TextElementType::Parameter && $this->Evulator->ParamNoAttrib) ||
+			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagattribonly)
+			)
 			{
-				if($cur != $this->Evulator->RightTag)
-				{
-					$current .= $cur;
-					continue;
-				}
-			}
-			if($namefound &&  $tagElement->NoAttrib)
-			{
-				if($cur != $this->Evulator->RightTag)
+				if($cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag))
 				{
 					$current .= $cur;
 					continue;
@@ -421,11 +417,12 @@ class TextEvulatorParser
 				}
 				if($inquot && $cur == $quotchar)
 				{
-					if($currentName == '##set_TAG_ATTR##')
+					if($istagattrib)
 					{
 						$tagElement->TagAttrib = $current;
+						$istagattrib = false;
 					}
-					else if ( !empty($currentName)) {
+					else if (!$tagattribonly && !empty($currentName)) {
 
 						$tagElement->ElemAttr[$currentName] = $current;
 					}
@@ -466,6 +463,11 @@ class TextEvulatorParser
 				}
 				if ($cur ==  '=') {
 					if ($namefound) {
+						if($istagattrib)
+						{
+							$current .= $cur;
+							continue;
+						}
 						if (empty($current)) {
 							$this->Evulator->IsParseMode = false;
 							throw new Exception('Syntax Error');
@@ -476,8 +478,10 @@ class TextEvulatorParser
 						$namefound = true;
 						$tagElement->ElemName = $current;
 						$current = '';
-						$currentName = '##set_TAG_ATTR##';
+						$istagattrib = true;
+						$tagattribonly = ($this->Evulator->TagInfos->GetElementFlags($tagElement->ElemName) & TextElementFlags::TEF_TagAttribonly) != 0;
 						//throw new Exception('Syntax Error');
+						
 					}
 					continue;
 				}
@@ -497,18 +501,20 @@ class TextEvulatorParser
 					if (!$namefound) {
 						$tagElement->ElemName = $current;
 						$current = '';
+						$tagattribonly = false;
 					}
 					if($tagElement->NoAttrib)
 					{
 						$tagElement->Value = $current;
 					}
-					else if($currentName == '##set_TAG_ATTR##')
+					else if($istagattrib)
 					{
 						$tagElement->TagAttrib = $current;
+						$istagattrib = false;
 					}
-					else if (!empty($currentName)) {
+					else if (!$tagattribonly && !empty($currentName)) {
 						$tagElement->ElemAttr[$currentName] = $current;
-					} else if (!empty($current)) {
+					} else if (!$tagattribonly && !empty($current)) {
 						$tagElement->ElemAttr[$current] = '';
 					}
 					$tagElement->SlashUsed = $firstslashused;
@@ -517,7 +523,8 @@ class TextEvulatorParser
 						$tagElement->Closed = true;
 					}
 					$elname = strtolower($tagElement->ElemName);
-					if ($this->Evulator->TagInfos->HasTagInfo($elname) && $this->Evulator->TagInfos[$elname]->IsAutoClosedTag)
+					
+					if (($this->Evulator->TagInfos->GetElementFlags($elname) & TextElementFlags::TEF_AutoClosedTag) != 0)
 					{
 						$tagElement->Closed = true;
 						$tagElement->AutoClosed = true;
@@ -531,22 +538,24 @@ class TextEvulatorParser
 					if (!$namefound && !empty($current)) {
 						$namefound = true;
 						$tagElement->ElemName = $current;
+						$tagattribonly = ($this->Evulator->TagInfos->GetElementFlags($tagElement->ElemName) & TextElementFlags::TEF_TagAttribonly) != 0;
 						$current = '';
 
 					} else if ($namefound) {
-						if($currentName == '##set_TAG_ATTR##')
+						if($istagattrib)
 						{
 							$tagElement->TagAttrib = $current;
 							$quoted = false;
 							$currentName = '';
 							$current = '';
+							$istagattrib = false;
 						}
-						else if (!empty($currentName)) {
+						else if (!$tagattribonly && !empty($currentName)) {
 							$tagElement->ElemAttr[$currentName] = $current;
 							$current = '';
 							$currentName = '';
 							$quoted = false;
-						} else if (!empty($current)) {
+						} else if (!$tagattribonly && !empty($current)) {
 							$tagElement->ElemAttr[$current] = '';
 							$current = '';
 							$quoted = false;

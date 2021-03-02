@@ -28,7 +28,7 @@ class TextElement
 		{
 			$this->elemName = $val;
 			$this->NoAttrib = false;
-			if ($this->BaseEvulator != null && $this->BaseEvulator->TagInfos->HasTagInfo($val) && $this->BaseEvulator->TagInfos[$val]->IsNoAttributedTag)
+			if ($this->BaseEvulator != null && (($this->BaseEvulator->TagInfos->GetElementFlags($val) & TextElementFlags::TEF_NoAttributedTag) != 0))
 			{
 				$this->NoAttrib = true;
 			}

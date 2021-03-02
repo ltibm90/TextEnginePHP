@@ -69,6 +69,11 @@ class TextElementInfos implements ArrayAccess
 	{
 		return isset($this->inner[strtolower($tagName)]);
 	}
+	public function GetElementFlags($tagName)
+	{
+		if (!$this->HasTagInfo($tagName)) return TextElementFlags::TEF_NONE;
+		return $this[$tagName]->Flags;
+	}
 
     public function Contains(&$item)
     {
