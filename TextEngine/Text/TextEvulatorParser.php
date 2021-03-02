@@ -295,6 +295,7 @@ class TextEvulatorParser
 		$initial =false;
 		$istagattrib = false;
 		$tagattribonly = false;
+		$curFlags = 0;
 		for ($i = $this->pos; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			
@@ -348,6 +349,7 @@ class TextEvulatorParser
 						$tagElement->ElementType = TextElementType::CDATASection;
 						$tagElement->ElemName = "#cdata";
 						$namefound = true;
+						$curFlags = 0;
 						$i += 7;
 						continue;
 					}
@@ -396,7 +398,7 @@ class TextEvulatorParser
 			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagattribonly)
 			)
 			{
-				if($cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag))
+				if($cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || ($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0))
 				{
 					$current .= $cur;
 					continue;
@@ -452,10 +454,14 @@ class TextEvulatorParser
 					if (!$namefound && !empty($current)) {
 						$namefound = true;
 						$tagElement->ElemName = $current;
+						$curFlags = $tagElement->GetTagFlags();
 						$current = '';
 					}
 					if ($namefound) {
-						$lastslashused = true;
+						if($next == $this->Evulator->RightTag && ($curFlags & TextElementFlags::TEF_DisableLastSlash) == 0)
+						{
+							$lastslashused = true;
+						}
 					} else {
 						$firstslashused = true;
 					}
@@ -479,7 +485,9 @@ class TextEvulatorParser
 						$tagElement->ElemName = $current;
 						$current = '';
 						$istagattrib = true;
-						$tagattribonly = ($this->Evulator->TagInfos->GetElementFlags($tagElement->ElemName) & TextElementFlags::TEF_TagAttribonly) != 0;
+						$curFlags = $tagElement->GetTagFlags();
+						$tagattribonly = ($curFlags & TextElementFlags::TEF_TagAttribonly) != 0;
+						
 						//throw new Exception('Syntax Error');
 						
 					}
@@ -538,7 +546,8 @@ class TextEvulatorParser
 					if (!$namefound && !empty($current)) {
 						$namefound = true;
 						$tagElement->ElemName = $current;
-						$tagattribonly = ($this->Evulator->TagInfos->GetElementFlags($tagElement->ElemName) & TextElementFlags::TEF_TagAttribonly) != 0;
+						$curFlags = $tagElement->GetTagFlags();
+						$tagattribonly = ($curFlags & TextElementFlags::TEF_TagAttribonly) != 0;
 						$current = '';
 
 					} else if ($namefound) {

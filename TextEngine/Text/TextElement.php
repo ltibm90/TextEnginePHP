@@ -28,7 +28,7 @@ class TextElement
 		{
 			$this->elemName = $val;
 			$this->NoAttrib = false;
-			if ($this->BaseEvulator != null && (($this->BaseEvulator->TagInfos->GetElementFlags($val) & TextElementFlags::TEF_NoAttributedTag) != 0))
+			if ($this->BaseEvulator != null && (($this->GetTagFlags($val) & TextElementFlags::TEF_NoAttributedTag) != 0))
 			{
 				$this->NoAttrib = true;
 			}
@@ -800,7 +800,21 @@ class TextElement
 			}
 		}
 		return true;
-	}	
+	}
+	public function &GetTagInfo()
+	{
+		$info = null;
+		if ($this->BaseEvulator == null) return $info;
+		if ($this->BaseEvulator->TagInfos->HasTagInfo($this->ElemName)) return $this->BaseEvulator->TagInfos[$this->ElemName];
+		if ($this->BaseEvulator->TagInfos->HasTagInfo("*")) return $this->BaseEvulator->TagInfos["*"];
+		return $info;
+	}
+	public function GetTagFlags()
+	{
+		$info = $this->GetTagInfo();
+		if ($info == null) return TextElementFlags::TEF_NONE;
+		return $info->Flags;
+	}
 }
 class TextEvulateResult
 {

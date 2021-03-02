@@ -9,4 +9,8 @@ abstract class TextElementFlags
         /// E.G [TAG=ATTRIB=test atrribnext/], returns: ATTRIB=test atrribnext
         /// </summary>
 	const TEF_TagAttribonly =  8;
+        /// <summary>
+        /// if set [TAG/], tag not flagged autoclosed, if not set tag flagged autoclosed. 
+        /// </summary>
+	const TEF_DisableLastSlash  = 16;
 }
