@@ -10,8 +10,7 @@ class SetEvulator  extends  BaseEvulator
 			
 			$defname = $tag->GetAttribute("name");
 			if (empty($defname) || !ctype_alnum($defname)) return $result;
-			$defvalue = $tag->GetAttribute("value");
-			$this->Evulator->DefineParameters[$defname] = $this->EvulateText($defvalue);
+			$this->Evulator->DefineParameters[$defname] = $this->EvulateAttribute($tag->ElemAttr['value']);
 		}
 		return $result;
 	}

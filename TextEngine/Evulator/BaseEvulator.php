@@ -21,17 +21,26 @@ abstract class BaseEvulator
 		$er = $pardecoder->Items->Compute($parameters);
 		return $er->result;
 	}
+	protected function EvulatePar(&$pardecoder, &$additionalparams = null)
+	{
+		$index = -1;
+		if($additionalparams != null)
+		{
+			$index = $this->Evulator->LocalVariables->AddArray($additionalparams);
+		}
+		$er =  $pardecoder->Items->Compute($this->Evulator->GlobalParameters, null, $this->Evulator->LocalVariables);
+		if($index >= 0)
+		{
+			$this->Evulator->LocalVariables->RemoveAt($index);
+		}
+		return $er->result[0];
+		
+	}
 	protected function EvulateText($text, &$additionalparams = null)
 	{
-		if($additionalparams)
-		{
-			return $this->EvulateTextCustomParams($text, $additionalparams);
-		}
-
 		$pardecoder = new ParDecoder($text);
 		$pardecoder->Decode();
-		$er =  $pardecoder->Items->Compute($this->Evulator->GlobalParameters, null, $this->Evulator->LocalVariables);
-		return $er->result[0];
+		return $this->EvulatePar($pardecoder, $additionalparams);
 	}
 	protected function StorePreviousValue($varname)
 	{
@@ -66,12 +75,43 @@ abstract class BaseEvulator
 		}
 		unset($this->Evulator->localVariables[$varname]);
 	}
+	protected function EvulateAttribute(&$attr, &$additionalparams = null)
+	{
+		if($attr == null || empty($attr->Value)) return null;
+		if($attr->ParData == null)
+		{
+			$attr->ParData = new ParDecoder($attr->Value);
+			$attr->ParData->Decode();
+		}
+		return $this->EvulatePar($attr->ParData, $additionalparams);
+	}
 	protected function ConditionSuccess(&$tag, $attr = 'c')
 	{
-		$condition = ($tag->NoAttrib) ? $tag->Value : $tag->GetAttribute($attr);
-		if($condition === null) return true;
-		$res = $this->EvulateText($condition);
-
+		$pardecoder = null;
+		if($tag->NoAttrib)
+		{
+			if($tag->Value == null) return true;
+			$pardecoder = &$tag->ParData;
+			if($pardecoder == null)
+			{
+				$pardecoder = new ParDecoder($tag->Value);
+				$pardecoder->Decode();
+				$tag->ParData =& $pardecoder;
+			}
+		}
+		else
+		{
+			$t_attr = &$tag->ElemAttr[$attr];
+			if($t_attr == null || $t_attr->Value == null) return true;
+			$pardecoder = &$tag->ParData;
+			if($pardecoder == null)
+			{
+				$pardecoder = new ParDecoder($t_attr->Value);
+				$pardecoder->Decode();
+				$t_attr->ParData =& $pardecoder;
+			}		
+		}
+		$res = $this->EvulatePar($pardecoder);
 		return $res;
 	}
 }

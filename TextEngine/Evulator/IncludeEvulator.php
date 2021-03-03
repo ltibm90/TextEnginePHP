@@ -13,8 +13,7 @@ class IncludeEvulator extends BaseEvulator
 	}
 	public function Render_Parse(&$tag, &$vars)
 	{
-		$loc =  $tag->GetAttribute('name');
-		$loc = TE_INCLUDEBASE . "/" . $this->EvulateText($loc);
+		$loc = TE_INCLUDEBASE . "/" . $this->EvulateAttribute($tag->ElemAttr['name']);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
 		$xpath = $tag->GetAttribute("xpath");
 		$xpathold = false;
@@ -28,7 +27,7 @@ class IncludeEvulator extends BaseEvulator
      
 		if(empty($xpath))
 		{
-			$this->Evulator->ParseText($tag->Parent, $content);
+			$this->Evulator->ParseText($tag->Parent, $content);			
 		}
 		else
 		{
@@ -54,13 +53,10 @@ class IncludeEvulator extends BaseEvulator
 	}
  	public function Render_Default(&$tag, &$vars)
 	{
-		$loc =  $tag->GetAttribute('name');	
-		$loc = TE_INCLUDEBASE . '/' . $this->EvulateText($loc);
-
+		$loc = TE_INCLUDEBASE . '/' .  $this->EvulateAttribute($tag->ElemAttr['name']);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
 		
 		$parse = $tag->GetAttribute('parse', true);
-				
 		$content = file_get_contents($loc);
 		$result = new TextEvulateResult();
 		if($parse === 'false' || !$parse)
@@ -76,6 +72,7 @@ class IncludeEvulator extends BaseEvulator
 			{
 				$xpath = $tag->GetAttribute("xpath_old");
 				$xpathold = true;
+				
 			}
       
 			$tempelem = new TextElement();
@@ -88,6 +85,7 @@ class IncludeEvulator extends BaseEvulator
 			$tempelem2->BaseEvulator = &$this->Evulator;		
 			
 			$this->Evulator->ParseText($tempelem2, $content);
+
 			if(empty($xpath))
 			{
 				$tempelem = &$tempelem2;

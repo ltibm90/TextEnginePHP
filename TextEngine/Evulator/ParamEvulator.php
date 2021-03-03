@@ -9,7 +9,12 @@ class ParamEvulator extends  BaseEvulator
 			return $result;
 		}
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
-		$etresult = $this->EvulateText($tag->ElemName,$vars);
+		if($tag->ParData == null)
+		{
+			$tag->ParData = new ParDecoder($tag->ElemName);
+			$tag->ParData->Decode();
+		}
+		$etresult = $this->EvulatePar($tag->ParData, $vars);
 		if(is_array($etresult))
 		{
 			$etresult = $etresult[0];

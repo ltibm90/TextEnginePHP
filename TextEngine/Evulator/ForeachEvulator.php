@@ -4,14 +4,13 @@ class ForeachEvulator extends BaseEvulator
 	public function Render(&$tag, &$vars)
 	{
 		$varname = $tag->GetAttribute('var');
-		$in = $tag->GetAttribute('in');
-		if(!$varname && !$in)
+		if(!$varname)
 		{
 			return null;
 		}
-		$inlist = $this->EvulateText($in);
+		
+		$inlist = $this->EvulateAttribute($tag->ElemAttr["in"]);
 		if(!$inlist || !is_array($inlist)) return null;
-
 		//$this->StorePreviousValue($varname);
 		$localVars = array();
 		$_lv_index = $this->Evulator->LocalVariables->AddArray($localVars);

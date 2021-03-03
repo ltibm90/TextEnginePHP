@@ -246,6 +246,7 @@ class TextEvulatorParser
 			}
 			$this->pos = $i;
 			if (!$intag || $istextnode) {
+				
 				$tagElement->Value = $this->ParseInner();
 				if(!$this->in_noparse && $tagElement->ElementType == TextElementType::TextNode && empty($tagElement->Value))
 				{
@@ -398,7 +399,7 @@ class TextEvulatorParser
 			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagattribonly)
 			)
 			{
-				if($cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || ($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0))
+				if(($cur != $this->Evulator->RightTag && $tagElement->ElementType == TextElementType::Parameter) || $cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || ($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0))
 				{
 					$current .= $cur;
 					continue;

@@ -4,8 +4,12 @@ class ForEvulator extends BaseEvulator
 	public function Render(&$tag, &$vars)
 	{
 		$varname = $tag->GetAttribute('var');
-		$start = $tag->GetAttribute('start');
-		$step = $tag->GetAttribute('step');
+		$startAttr = &$tag->ElemAttr['start'];
+		$start = null;
+		if($startAttr != null) $start = $startAttr->Value;
+		$stepAttr = &$tag->ElemAttr['step'];
+		$step = 1;
+		if($stepAttr != null) $step = $stepAttr->Value;
 		if(!$start)
 		{
 			$start = "0";
@@ -14,19 +18,34 @@ class ForEvulator extends BaseEvulator
 		{
 			$step = 1;
 		}	
-		$to = $tag->GetAttribute('to');
-		if(!$varname && !$step && !$to)
+		$toAttr = $tag->ElemAttr['to'];
+		if(!$varname && !$step && (!$toAttr || !$toAttr->Value))
 		{
 			return null;
 		}
-		$start = $this->EvulateText($start);
-		$step = $this->EvulateText($step);
+		if($startAttr != null)
+		{
+			if($startAttr->ParData == null)
+			{
+				$startAttr->ParData = new ParDecode($start);
+				$startAttr->ParData->Decode();
+			}
+			$start = $this->EvulatePar($startAttr);
+		}
+		if($stepAttr != null)
+		{
+			if($stepAttr->ParData == null)
+			{
+				$stepAttr->ParData = new ParDecode($step);
+				$stepAttr->ParData->Decode();
+			}
+			$step = $this->EvulatePar($stepAttr);
+		}
 		if($step === null || $step == 0)
 		{
 			$step = 1;
 		}
-		$to = $this->EvulateText($to);
-
+		$to = $this->EvulateAttribute($toAttr);
 		if(($start != 0 && !is_numeric($start)) || !is_numeric($step) || !is_numeric($to))
 		{
 			return null;

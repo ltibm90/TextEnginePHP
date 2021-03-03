@@ -14,11 +14,21 @@ abstract class TextElementType
 class TextElement
 {
 	private $elemName;
+	public $ParData;
+	function __isset($prop)
+	{
+		if($prop == "Value" || $prop == "ElemName") return true;
+		return isset($this->$prop);
+	}
 	function __get($prop) 
 	{
 		if($prop == "ElemName")
 		{
 			return $this->elemName;
+		}
+		if($prop == "Value")
+		{
+			return $this->value;	
 		}
         return $this->$prop;
 	}
@@ -35,6 +45,13 @@ class TextElement
 			}
 			return;
 		}
+		if($prop == "Value")
+		{
+			unset($this->ParData);
+			$this->ParData = null;
+			$this->value = $val;
+			return;
+		}
         $this->$prop = $val;
 	}
 	/** @var TextElementAttributes */
@@ -42,7 +59,7 @@ class TextElement
 	/** @var TextEvulator */
 	public $BaseEvulator;
 	public $Closed;
-	public $Value;
+	private $value;
 	/** @var TextElement[] */
 	public $SubElements;
 	public $SubElementsCount = 0;
@@ -425,9 +442,12 @@ class TextElement
 		{
 			return null;
 		}
+
 		if ($this->ElemName == '#text') {
+			
 			if($this->BaseEvulator->EvulatorTypes->Text != "" && class_exists($this->BaseEvulator->EvulatorTypes->Text))
 			{
+			
 				$evulator = new $this->BaseEvulator->EvulatorTypes->Text($this->BaseEvulator);
 				return $evulator->Render($this, $vars);
 			}

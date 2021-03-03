@@ -23,7 +23,7 @@ class CMEvulator extends BaseEvulator
 				//$newelement[$key] = $key;
 				//$this->StorePreviousValue($key);
 				//$this->Evulator->localVariables[$key] = $this->EvulateText($value);
-				$newelement[$value->Name] = $this->EvulateText($value->Value, $vars);
+				$newelement[$value->Name] = $this->EvulateAttribute($value, $vars);
 			}
 		
 			foreach ($tag->ElemAttr as $key => $value) {
@@ -33,7 +33,7 @@ class CMEvulator extends BaseEvulator
 				//$newelement[$key] = $key;
 				//$this->StorePreviousValue($key);
 				//$this->Evulator->localVariables[$key] = $this->EvulateText($value);
-				$newelement[$value->Name] = $this->EvulateText($value->Value, $vars);
+				$newelement[$value->Name] = $this->EvulateAttribute($value, $vars);
 			}
 			$result = $element->EvulateValue(0, 0, $newelement);
 			//foreach ($newelement as $index => $item) {
