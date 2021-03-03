@@ -107,3 +107,15 @@ function string_contains($find, $input, $delimiter = ',', $trim = true)
 	}
 	return false;
 }
+class HTMLUTIL
+{
+	public static function toAttribute($vars, $exclude = array())
+	{
+		$sb = '';
+		foreach ($vars as $index => $var) {
+			if (array_key_exists($var->Name, $exclude)) continue;
+			$sb .= ' ' . $var->Name . '="' . str_replace('"', '\\"', $var->Value) . '"';
+		}
+		return $sb;
+	}
+}
