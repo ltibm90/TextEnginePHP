@@ -431,6 +431,7 @@ class TextEvulatorParser
 					$current = '';
 					$inquot = false;
 					$quoted = true;
+					continue;
 				}
 				else if(!$inquot)
 				{
@@ -521,6 +522,7 @@ class TextEvulatorParser
 					}
 					else if (!$tagattribonly && !empty($currentName)) {
 						$tagElement->ElemAttr->SetAttribute($currentName, $current);
+
 					} else if (!$tagattribonly && !empty($current)) {
 						$tagElement->ElemAttr->SetAttribute($current, '');
 					}
