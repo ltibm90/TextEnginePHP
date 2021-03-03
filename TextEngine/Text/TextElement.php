@@ -148,6 +148,15 @@ class TextElement
 					if (array_value_exists(strtolower($this->ElemName), $alias)) return true;
 				}
 			}
+			else if (array_key_exists($this->ElemName, $this->BaseEvulator->Aliasses)) {
+				$alias = $this->BaseEvulator->Aliasses[$this->ElemName];
+				if (!is_array($alias)) {
+					if ($alias == $name) return true;
+				} else {
+					if (array_value_exists(strtolower($name), $alias)) return true;
+				}
+			}
+			
 		}
 		return false;
 	}
