@@ -1,40 +1,25 @@
 <?php
-class TextElementAttribute
+class TextElementAttribute extends PropertyBase
 {
 	private $name;
 	private $nalue;
 	public $ParData;
-	function __isset($prop)
+	function Get_Name()
 	{
-		if($prop == "Name" || $prop == "Value") return true;
-		return isset($this->$prop);
+		return $this->name;
 	}
-	function __get($prop) 
+	function Set_Name($value)
 	{
-		if($prop == "Name")
-		{
-			return $this->name;
-		}
-		else if($prop == "Value")
-		{
-			return $this->value;
-		}
-        return $this->$prop;
+		$this->name = $value;
 	}
-    function __set($prop, $val) 
+	function Get_Value()
 	{
-		if($prop == "Name")
-		{
-			$this->name = $val;
-			return;
-		}
-		else if($prop == "Value")
-		{
-			$this->value = $val;
-			unset($this->ParData);
-			$this->ParData = null;
-			return;
-		}
-        $this->$prop = $val;
+		return $this->value;
+	}
+	function Set_Value($value)
+	{
+		$this->value = $value;
+		//unset($this->ParData);
+		$this->ParData = null;
 	}
 }

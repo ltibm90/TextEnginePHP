@@ -82,6 +82,7 @@ class ComputeActions
 			case '.':
 				return $item1 . $item2;
 		}
+		return $item1;
 	}
 
 	public static function CallMethodSingle($object, $name, $params)

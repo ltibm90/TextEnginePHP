@@ -11,48 +11,33 @@ abstract class TextElementType
 	const Parameter = 16;
 	const XMLTag = 17;
 }
-class TextElement
+class TextElement extends PropertyBase
 {
 	private $elemName;
 	public $ParData;
-	function __isset($prop)
+	function Get_ElemName()
 	{
-		if($prop == "Value" || $prop == "ElemName") return true;
-		return isset($this->$prop);
+		return $this->elemName;
 	}
-	function __get($prop) 
+	function Set_ElemName($value)
 	{
-		if($prop == "ElemName")
+		$this->NoAttrib = false;
+		$this->elemName = $value;
+		if ($this->BaseEvulator != null && (($this->GetTagFlags() & TextElementFlags::TEF_NoAttributedTag) != 0))
 		{
-			return $this->elemName;
+			$this->NoAttrib = true;
 		}
-		if($prop == "Value")
-		{
-			return $this->value;	
-		}
-        return $this->$prop;
 	}
-    function __set($prop, $val) 
+	function Get_Value()
 	{
-		if($prop == "ElemName")
-		{
-			$this->elemName = $val;
-			$this->NoAttrib = false;
-			if ($this->BaseEvulator != null && (($this->GetTagFlags() & TextElementFlags::TEF_NoAttributedTag) != 0))
-			{
-			
-				$this->NoAttrib = true;
-			}
-			return;
-		}
-		if($prop == "Value")
-		{
-			unset($this->ParData);
-			$this->ParData = null;
-			$this->value = $val;
-			return;
-		}
-        $this->$prop = $val;
+		return $this->value;
+	}
+	function Set_Value($value)
+	{
+		//unset($this->ParData);
+		$this->ParData = null;
+		$this->value = $value;
+		return;
 	}
 	/** @var TextElementAttributes */
 	public $ElemAttr;
@@ -845,6 +830,12 @@ class TextElement
 		$info = $this->GetTagInfo();
 		if ($info == null) return TextElementFlags::TEF_NONE;
 		return $info->Flags;
+	}
+	public function SetTextTag($closetag = false)
+	{
+		$this->ElemName = "#text";
+		$this->ElementType = TextElementType::TextNode;
+		if($closetag) $this->Closed = true;
 	}
 }
 class TextEvulateResult

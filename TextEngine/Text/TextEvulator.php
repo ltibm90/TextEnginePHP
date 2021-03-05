@@ -1,6 +1,7 @@
 <?php
 class TextEvulator
 {
+	public $SurpressError;
 	public $Text;
 	/** @var TextElement */
 	public $Elements;

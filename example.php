@@ -127,6 +127,12 @@ class UserInfo
 
 function TemplateTest()
 {
+	$pf = new ParFormat();
+	$kv["name"] = "MacMillan";
+	$kv["grup"] = "AR-GE";
+	$kv["random"] = function() {return rand(1, 100);};
+	$pf->Text = 'ParFormat örneği; Kullanıcı: {%name}, Grup: {%grup}, Random Sayı: {%random()}';
+	echo $pf->Apply($kv);
 
 	$globalInfo = new stdClass();
 	$globalInfo->title = "Cyber-Warrior User Info";

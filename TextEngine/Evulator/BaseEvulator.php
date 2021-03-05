@@ -23,6 +23,10 @@ abstract class BaseEvulator
 	}
 	protected function EvulatePar(&$pardecoder, &$additionalparams = null)
 	{
+		if($pardecoder->SurpressError != $this->Evulator->SurpressError)
+		{
+			$pardecoder->SurpressError = $this->Evulator->SurpressError;
+		}
 		$index = -1;
 		if($additionalparams != null)
 		{

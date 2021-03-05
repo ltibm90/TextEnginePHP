@@ -6,6 +6,7 @@ class ParDecoder
 	private $TextLength;
 	private $pos;
 	public $Items;
+	public $SurpressError;
 	public function __construct($text)
 	{
 		$this->TextLength = strlen($text);
@@ -17,7 +18,7 @@ class ParDecoder
 	public function Decode()
 	{
 		/** @var ParItem|InnerGroup $parentItem */
-		$parentItem = $this->Items;
+		$parentItem = &$this->Items;
 		$isopened = false;
 		for ($i = 0; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
@@ -27,7 +28,7 @@ class ParDecoder
 			}
 			if (($prev != ')' && $prev != ']' && $prev != '}' ) && ($cur == '=' || $cur == '>' || $cur == '<' || $cur == '?' || $cur == ':')) {
 				if ($isopened) {
-
+					unset($item);
 					$item = new InnerItem();
 					$item->IsOperator = true;
 					if (($prev == '>' && $cur == '=') || ($prev == '<' && $cur == '=') || ($prev == '!' && $cur == '=') || ($prev == '=' && $cur == '>')) {
@@ -35,35 +36,54 @@ class ParDecoder
 					} else {
 						$item->Value = $cur;
 					}
-					$parentItem = $parentItem->parent;
+					$tempPar = &$parentItem->Parent;
+					unset($parentItem);
+					$parentItem = &$tempPar;
+					unset($tempPar);
 					$isopened = false;
 					$parentItem->innerItems[] = $item;
 					$i--;
 
 				} else {
-					$item = new ParItem;
-					$item->Parent = $parentItem;
+					unset($item);
+					$item = new ParItem();
+					$item->Parent = &$parentItem;
 					$item->ParName = "(";
 					$parentItem->innerItems[] = $item;
-					$parentItem = $item;
+					unset($parentItem);
+					$parentItem = &$item;
+					$item->BaseDecoder = &$this;
 					$isopened = true;
 				}
 				continue;
 			}
 			if ($cur == '(' || $cur == '[' || $cur == '{') {
+				unset($item);
 				$item = new ParItem();
-				$item->parent = $parentItem;
+				$item->Parent = &$parentItem;
 				$item->ParName = $cur;
+				$item->BaseDecoder = &$this;
 				$parentItem->innerItems[] = $item;
-				$parentItem = $item;
+				unset($parentItem);
+				$parentItem = &$item;
 				continue;
 			} else if ($cur == ')' || $cur == ']' || $cur == '}') {
 				if($isopened)
 				{
 					//$isopened = false;
 				}
-				$parentItem = $parentItem->parent;
+				
+				$tempPar = &$parentItem->Parent;
+				unset($parentItem);
+				$parentItem = &$tempPar;
+				unset($tempPar);
 				if ($parentItem == null) {
+					if($this->SurpressError)
+					{
+						unset($parentItem);
+						$parentItem = &$this->Items;
+						continue;
+					}
 					throw new Exception("Syntax Error");
 				}
 				continue;

@@ -2,6 +2,7 @@
 if(!defined("TE_PATH_PREFIX")) define("TE_PATH_PREFIX", "");
 if(!defined("TE_CUSTOM_EVULATOR_PATH")) define("TE_CUSTOM_EVULATOR_PATH", "");
 if(!defined("TE_INCLUDEBASE")) define("TE_INCLUDEBASE", __DIR__);
+require_once TE_PATH_PREFIX .'Misc/PropertyBase.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttribute.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttributes.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementFlags.php';
@@ -18,6 +19,9 @@ require_once TE_PATH_PREFIX .'Misc/ArrayGroup.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParDecoder.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/Inners.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParItem.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParFormatType.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParFormatItem.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParFormat.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ComputeActions.php';
 require_once TE_PATH_PREFIX . 'XPathClasses/_XPathIncludes.php';
 

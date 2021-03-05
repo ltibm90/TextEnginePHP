@@ -5,8 +5,9 @@ class ParItem extends InnerItem
 
 	public function __construct()
 	{
+		
 	}
-
+	public $BaseDecoder;
 	public $ParName;
 	/** @var ParItem */
 	public $parent;
@@ -118,8 +119,22 @@ class ParItem extends InnerItem
 					{
 						if ($current->ParName == "(")
 						{				
-	
-							$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $localvars);	
+							if($this->BaseDecoder && $this->BaseDecoder->SurpressError)
+							{
+								try 
+								{
+									$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $localvars);	
+								} 
+								catch (Exception $e) 
+								{
+									$currentitemvalue = null;
+								}
+							}
+							else
+							{
+								$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $localvars);	
+							}
+
 						}
 						else if($current->ParName == "[")
 						{

@@ -95,7 +95,7 @@ class TextEvulatorParser
 
 
 				}
-				if (!$prevtag && $this->Evulator->ThrowExceptionIFPrevIsNull) {
+				if (!$prevtag && $this->Evulator->ThrowExceptionIFPrevIsNull && !$this->Evulator->SurpressError) {
 					$this->Evulator->IsParseMode = false;
 					throw new Exception("Syntax Error");
 				}
@@ -192,9 +192,7 @@ class TextEvulatorParser
 			if($this->Evulator->NoParseEnabled && $this->in_noparse)
 			{
 				$istextnode = true;
-				$tagElement->ElemName = "#text";
-				$tagElement->ElementType = TextElementType::TextNode;
-				$tagElement->Closed = true;
+				$tagElement->SetTextTag(true);
 			}
 			else
 			{
@@ -202,6 +200,13 @@ class TextEvulatorParser
 				if (!$inspec) {
 					if ($cur == $this->Evulator->LeftTag) {
 						if ($intag) {
+							if($this->Evulator->SurpressError)
+							{
+								$tagElement->SetTextTag(true);
+								$tagElement->Value = mb_substr($this->Text, $start, $i - $start);
+								$this->pos = $i - 1;
+								return $tagElement;
+							}
 							$this->Evulator->IsParseMode = false;
 							throw  new Exception("Syntax Error");
 						}
@@ -212,16 +217,22 @@ class TextEvulatorParser
 					{
 						$ampcode = $this->DecodeAmp($i + 1, false);
 						$i = $this->pos;
+						$tagElement->SetTextTag(true);
+						$tagElement->ElementType = TextElementType::EntityReferenceNode;
 						if ($ampcode && $ampcode[0] == "&")
 						{
-							$this->Evulator->IsParseMode = false;
-							throw new Exception("Syntax Error");
+							if($this->Evulator->SurpressError)
+							{
+								$tagElement->ElementType = TextElementType::TextNode;
+							}
+							else
+							{
+								$this->Evulator->IsParseMode = false;
+								throw new Exception("Syntax Error");
+							}
 						}
 						$tagElement->AutoClosed = true;
-						$tagElement->Closed = true;
 						$tagElement->Value = $ampcode;
-						$tagElement->ElementType = TextElementType::EntityReferenceNode;
-						$tagElement->ElemName = "#text";
 						return tagElement;
 					}
 					else 
@@ -229,15 +240,20 @@ class TextEvulatorParser
 						if (!$intag) 
 						{
 							$istextnode = true;
-							$tagElement->ElemName = '#text';
-							$tagElement->ElementType = TextElementType::TextNode;
-							$tagElement->Closed = true;
+							$tagElement->SetTextTag(true);
 						}
 					}
 				}
 				if (!$inspec && $cur == $this->Evulator->RightTag) {
 					if (!$intag)
 					{
+						if($this->Evulator->SurpressError)
+						{
+							$tagElement->SetTextTag(true);
+							$tagElement->Value = mb_substr($this->Text, $start, $i - $start);
+							$this->pos = $i - 1;
+							return $tagElement;
+						}
 						$this->Evulator->IsParseMode = false;
 						throw new Exception("Syntax Error");
 					}
@@ -268,6 +284,7 @@ class TextEvulatorParser
 			}
 			else {
 				$this->ParseTagHeader($tagElement);
+				if(empty($tagElement->ElemName)) return null;
 				$intag = false;
 				if($this->Evulator->NoParseEnabled && $tagElement->ElemName == $this->Evulator->NoParseTag)
 				{
@@ -309,6 +326,7 @@ class TextEvulatorParser
 			}
 			if ($cur == "\\" && !$tagElement->ElementType == TextElementType::CommentNode) {
 				if (!$namefound && !$tagElement->ElementType == TextElementType::Parameter) {
+					if($this->Evulator->SurpressError) continue;
 					throw new Exception('Syntax Error');
 				}
 				$inspec = true;
@@ -360,6 +378,7 @@ class TextEvulatorParser
 			{
 				if (!$namefound && $tagElement->ElementType != TextElementType::Parameter)
 				{
+					if($this->Evulator->SurpressError) continue;
 					$this->Evulator->IsParseMode = false;
 					throw new Exception("Syntax Error");
 				}
@@ -408,6 +427,7 @@ class TextEvulatorParser
 			if ($firstslashused && $namefound) {
 				if ($cur != $this->Evulator->RightTag) {
 					if ($cur == ' ' && $next != '\t' && $next != ' ') {
+						if($this->Evulator->SurpressError) continue;
 						$this->Evulator->IsParseMode = false;
 						throw new Exception('Syntax Error');
 					}
@@ -415,6 +435,7 @@ class TextEvulatorParser
 			}
 			if ($cur == "\"" ||$cur == "'" ) {
 				if (!$namefound || empty($currentName)) {
+					if($this->Evulator->SurpressError) continue;
 					$this->Evulator->IsParseMode = false;
 					throw  new Exception("Syntax Error");
 				}
@@ -476,6 +497,7 @@ class TextEvulatorParser
 							continue;
 						}
 						if (empty($current)) {
+							if($this->Evulator->SurpressError) continue;
 							$this->Evulator->IsParseMode = false;
 							throw new Exception('Syntax Error');
 						}
@@ -503,6 +525,7 @@ class TextEvulatorParser
 					}
 				}
 				if ($cur == $this->Evulator->LeftTag) {
+					if($this->Evulator->SurpressError) continue;
 					$this->Evulator->IsParseMode = false;
 					throw new Exception('Syntax Error');
 				}
