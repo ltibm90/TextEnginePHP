@@ -428,10 +428,11 @@ class TextElement extends PropertyBase
 	}
 
 	/** @return TextEvulateResult */
-	public function EvulateValue($start = 0, $end = 0, &$vars = null)
+	public function EvulateValue($start = 0, $end = 0, &$vars = null, $senderstr = null)
 	{
 		$result = new TextEvulateResult();
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
+		$result->TextContent = $senderstr;
 		if ($this->ElementType == TextElementType::CommentNode)
 		{
 			return null;
@@ -499,7 +500,7 @@ class TextElement extends PropertyBase
 					continue;
 				}
 				if ($vresult->Result == TextEvulateResult::EVULATE_DEPTHSCAN) {
-					$nresult = $subElement->EvulateValue($vresult->Start, $vresult->End, $vars);
+					$nresult = $subElement->EvulateValue($vresult->Start, $vresult->End, $vars, $vresult->TextContent);
 					unset($vresult);
 					$vresult = &$nresult;
 				}

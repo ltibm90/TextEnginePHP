@@ -183,7 +183,6 @@ class ParItem extends InnerItem
 				{
 					if(!$current->is_operator && $current->type == InnerItem::TYPE_VARIABLE &&  $next != null && $next->IsParItem())
 					{
-						
 						$currentitemvalue = null;
 					}
 					else
