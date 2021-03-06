@@ -19,7 +19,7 @@ class XPathActions
             }
             else
             {
-				$actions->XPathFunctions->TotalItems = $item->Parent->SubElementsCount;
+				$actions->XPathFunctions->TotalItems = $item->Parent->GetSubElementsCount();
             }
         }
         if ($curindex != -1)
@@ -65,7 +65,7 @@ class XPathActions
                 }
                 else
                 {
-                    $totalcount = $item->Parent->SubElementsCount;
+                    $totalcount = $item->Parent->GetSubElementsCount();
                 }
             }
             if ($c < -1 || $c >= $totalcount)

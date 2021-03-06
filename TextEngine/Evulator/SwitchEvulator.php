@@ -8,7 +8,7 @@ class SwitchEvulator extends BaseEvulator
 		$default = null;
 		$active = null;
 	
-		for($i = 0; $i < $tag->SubElementsCount; $i++)
+		for($i = 0; $i < $tag->GetSubElementsCount(); $i++)
 		{
 			$elem = $tag->SubElements[$i];
 			if($elem->ElemName == 'default')

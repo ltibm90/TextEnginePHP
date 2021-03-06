@@ -14,7 +14,7 @@ class IfEvulator  extends  BaseEvulator
 		$result = new TextEvulateResult();
 		$conditionok = $this->ConditionSuccess($tag);
 		$sil = false;
-		for ($i = 0; $i < $tag->SubElementsCount; $i++)
+		for ($i = 0; $i < $tag->GetSubElementsCount(); $i++)
 		{
 			$sub = $tag->SubElements[$i];
 			if (!$conditionok || $sil)

@@ -47,7 +47,11 @@ class TextElement extends PropertyBase
 	private $value;
 	/** @var TextElement[] */
 	public $SubElements;
-	public $SubElementsCount = 0;
+	
+	public function GetSubElementsCount()
+	{
+		return $this->SubElements->GetCount();
+	}
 	public $SlashUsed;
 	/** @var TextElement */
 	public $Parent;
@@ -87,7 +91,7 @@ class TextElement extends PropertyBase
 	{	
 		if(!$this->Parent) return -1;
 		$total = 0;
-		for($i = 0; $i < $this->Parent->SubElementsCount; $i++)
+		for($i = 0; $i < $this->Parent->GetSubElementsCount(); $i++)
 		{
 			
 			unset($current);
@@ -103,8 +107,7 @@ class TextElement extends PropertyBase
 	public function AddElement(&$element)
 	{
 		$this->SubElements->Add($element);
-		$element->Index_old = $this->SubElementsCount;
-		$this->SubElementsCount++;
+		$element->Index_old = $this->GetSubElementsCount();
 
 	}
 	public function HasAttribute($name)
@@ -125,7 +128,7 @@ class TextElement extends PropertyBase
 	{
 		if (strtolower($this->ElemName) == strtolower($name)) return true;
 		if ($matchalias) {
-			if (array_key_exists($name, $this->BaseEvulator->Aliasses)) {
+			if (array_key_exists(strtolower($name), $this->BaseEvulator->Aliasses)) {
 				$alias = $this->BaseEvulator->Aliasses[$name];
 				if (!is_array($alias)) {
 					if ($alias == $this->ElemName) return true;
@@ -133,10 +136,10 @@ class TextElement extends PropertyBase
 					if (array_value_exists(strtolower($this->ElemName), $alias)) return true;
 				}
 			}
-			else if (array_key_exists($this->ElemName, $this->BaseEvulator->Aliasses)) {
-				$alias = $this->BaseEvulator->Aliasses[$this->ElemName];
+			else if (array_key_exists(strtolower($this->ElemName), $this->BaseEvulator->Aliasses)) {
+				$alias = $this->BaseEvulator->Aliasses[strtolower($this->ElemName)];
 				if (!is_array($alias)) {
-					if ($alias == $name) return true;
+					if (strtolower($alias) == strtolower($name)) return true;
 				} else {
 					if (array_value_exists(strtolower($name), $alias)) return true;
 				}
@@ -150,13 +153,12 @@ class TextElement extends PropertyBase
 	{
 		$this->BaseEvulator->Text = $text;
 		$this->SubElements = new TextElements();
-		$this->SubElementsCount = 0;
 		$this->BaseEvulator->Parse($this);
 		return $this;
 	}
 	public function FirstChild()
 	{
-		if($this->SubElements && $this->SubElementsCount > 0)
+		if($this->SubElements && $this->GetSubElementsCount() > 0)
 		{
 			return $this->SubElements[0];
 		}
@@ -164,9 +166,9 @@ class TextElement extends PropertyBase
 	}
 	public function LastChild()
 	{
-		if($this->SubElements && $this->SubElementsCount > 0)
+		if($this->SubElements && $this->GetSubElementsCount() > 0)
 		{
-			return $this->SubElements[$this->SubElementsCount - 1];
+			return $this->SubElements[$this->GetSubElementsCount() - 1];
 		}
 		return null;
 	}
@@ -213,7 +215,7 @@ class TextElement extends PropertyBase
 	}
 	public function HeaderText($outputformat = false)
 	{
-		if ($this->AutoAdded && $this->SubElementsCount == 0) return "";
+		if ($this->AutoAdded && $this->GetSubElementsCount() == 0) return "";
 		$depth = $this->Depth();
         $text = '';
 		if ($outputformat)
@@ -376,7 +378,7 @@ class TextElement extends PropertyBase
 
 	public function NextElement()
 	{
-		if ($this->Index() + 1 < $this->Parent->SubElementsCount) {
+		if ($this->Index() + 1 < $this->Parent->GetSubElementsCount()) {
 			return $this->Parent->SubElements[$this->Index() + 1];
 		}
 		return null;
@@ -385,7 +387,7 @@ class TextElement extends PropertyBase
 	public function GetSubElement($name)
 	{
 
-		for ($i = 0; $i < $this->SubElementsCount; $i++) {
+		for ($i = 0; $i < $this->GetSubElementsCount(); $i++) {
 			$ename = $this->SubElements[$i]->ElemName;
 			if (preg_grep( "/$ename/i" ,  func_get_args() )) {
 				return $this->SubElements[$i];
@@ -469,7 +471,7 @@ class TextElement extends PropertyBase
 			}
 			return null;
 		}
-		if ($end == 0) $end = $this->SubElementsCount;
+		if ($end == 0) $end = $this->GetSubElementsCount();
 		for ($i = $start; $i < $end; $i++) {
 			$subElement = $this->SubElements[$i];
 			//$className = $subElement->ElemName . 'Evulator';
@@ -533,7 +535,7 @@ class TextElement extends PropertyBase
 	{
 		$elements = new TextElements();
 		$lower = strtolower($name);
-		for ($i = 0; $i < $this->SubElementsCount; $i++)
+		for ($i = 0; $i < $this->GetSubElementsCount(); $i++)
 		{
 			unset($elem);
 			$elem = &$this->SubElements[$i];
@@ -548,7 +550,7 @@ class TextElement extends PropertyBase
 					$elements->Add($elem);
 				}
 			}
-			if ($depthscan && $elem->SubElementsCount > 0)
+			if ($depthscan && $elem->GetSubElementsCount() > 0)
 			{
 				$elements->AddRange($elem->GetElementsHasAttributes($name, $depthscan));
 			}
@@ -560,7 +562,7 @@ class TextElement extends PropertyBase
 		$elements = new TextElements();
 		$lower = strtolower($name);
 		
-		for ($i = 0; $i < $this->SubElementsCount; $i++)
+		for ($i = 0; $i < $this->GetSubElementsCount(); $i++)
 		{
 			unset($elem);
 			$elem = &$this->SubElements[$i];
@@ -573,7 +575,7 @@ class TextElement extends PropertyBase
 					break;
 				}
 			}
-			if ($depthscan && $elem->SubElementsCount > 0)
+			if ($depthscan && $elem->GetSubElementsCount() > 0)
 			{
 				$elements->AddRange($elem->GetElementsByTagName($name, $depthscan));
 			}
@@ -584,7 +586,7 @@ class TextElement extends PropertyBase
 	public function GetElementsByPath($block)
 	{
 		$elements = new TextElements();
-		for ($i = 0; $i < $this->SubElementsCount; $i++)
+		for ($i = 0; $i < $this->GetSubElementsCount(); $i++)
 		{
 			unset($subelem);
 			$subelem = &$this->SubElements[$i];		

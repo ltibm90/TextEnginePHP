@@ -46,7 +46,7 @@ class CMEvulator extends BaseEvulator
 	protected  function GetMacroElement($name)
 	{
 
-		//for($i = 0; $i < $this->Evulator->Elements->subElementsCount; $i++)
+		//for($i = 0; $i < $this->Evulator->Elements->GetSubElementsCount; $i++)
 		//{
 			/** @var $next TextElement */
 		/*	$next = $this->Evulator->Elements->subElements[$i];

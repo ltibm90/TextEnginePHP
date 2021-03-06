@@ -6,12 +6,18 @@ class EvulatorTypesClass implements ArrayAccess
 	public $Text;
 
     private $innerArray = array();
-
+	
     public function __construct() {
 		$this->Param = "ParamEvulator";
 		$this->GeneralType = "GeneralEvulator";
 		$this->Text = "TexttagEvulator";
     }
+	
+	public function Clear()
+	{
+		unset($this->innerArray);
+		$this->innerArray = array();
+	}
 
     public function offsetSet($offset, $value) {
         if (is_null($offset) || empty($offset)) {
