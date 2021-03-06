@@ -622,6 +622,18 @@ class TextEvulatorParser
 				continue;
 
 			}
+			if($this->Evulator->AllowCharMap && $cur != $this->Evulator->LeftTag && $cur != $this->Evulator->RightTag && isset($this->Evulator->CharMap[$cur]))
+			{
+					if($parfound)
+					{
+						$nparsetext .= $this->Evulator->CharMap[$cur];
+					}
+					else
+					{
+						$text .= $this->Evulator->CharMap[$cur];
+					}
+					continue;
+			}
 			//if($this->Evulator->DecodeAmpCode && $cur == '&') {
 				//$text .= $this->DecodeAmp($i + 1);
 				//$i = $this->pos;

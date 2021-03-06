@@ -36,7 +36,9 @@ class TextEvulator
 	/** @var bool */
 	public $IsParseMode;
 	public $CustomDataDictionary = array();
+	public $CharMap = array();
 	public $CustomDataSingle;
+	public $AllowCharMap;
 	public function __construct($text = null, $isfile = false)
 	{
 		$this->TagInfos = new TextElementInfos();
