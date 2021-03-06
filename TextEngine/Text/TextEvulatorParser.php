@@ -32,7 +32,7 @@ class TextEvulatorParser
 		for ($i = 0; $i < $this->TextLength; $i++) {
 			unset($tag);
 			$tag = $this->ParseTag($i, $currenttag);
-			if($tag == null)
+			if($tag == null || empty($tag->ElemName))
 			{
 				$i = $this->pos;
 				continue;

@@ -14,7 +14,7 @@ class EvulatorTypesClass implements ArrayAccess
     }
 
     public function offsetSet($offset, $value) {
-        if (is_null($offset)) {
+        if (is_null($offset) || empty($offset)) {
             return;
         } else {
 
@@ -22,14 +22,16 @@ class EvulatorTypesClass implements ArrayAccess
         }
     }
     public function offsetExists($offset) {
-        return isset($this->innerArray[$offset]);
+        return !empty($offset) && isset($this->innerArray[$offset]);
     }
 
     public function offsetUnset($offset) {
+		if(empty($offset)) return;
         unset($this->innerArray[$offset]);
     }
 
     public function offsetGet($offset) {
+		if(empty($offset)) return null;
         return isset($this->innerArray[$offset]) ? $this->innerArray[$offset] : null;
     }
 }
