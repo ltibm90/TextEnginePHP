@@ -1,6 +1,6 @@
 <?php
 define("TE_INCLUDEBASE", __DIR__);
-require_once "common/TextEngine/TextEngine.php";
+require_once "TextEngine/TextEngine.php";
 
 
 
