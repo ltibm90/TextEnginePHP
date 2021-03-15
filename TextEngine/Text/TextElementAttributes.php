@@ -33,6 +33,10 @@ class TextElementAttributes implements ArrayAccess, Iterator
 	{
 		return $this->offsetExists($name);
 	}
+	public function &Get($index)
+	{
+		return $this->inner[$index];
+	}
 	public function GetAttribute($name, $default = null)
 	{
 		$index = $this->GetIndex($name);

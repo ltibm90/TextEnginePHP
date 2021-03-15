@@ -407,8 +407,10 @@ class TextElement extends PropertyBase
 		}
 		$text = '';
 		if (!$this->SubElements) return $text;
-		foreach ($this->subElements as $index => $subElement) 
+
+		foreach ($this->SubElements as $index => $subElement) 
 		{
+		
 			if ($subElement->ElemName == '#text' ||  $subElement->ElementType == TextElementType::CDATASection) 
 			{
 				if ($subElement->ElementType == TextElementType::EntityReferenceNode)

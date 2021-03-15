@@ -2,7 +2,7 @@
 class TextElementAttribute extends PropertyBase
 {
 	private $name;
-	private $nalue;
+	private $value;
 	public $ParData;
 	function Get_Name()
 	{
@@ -14,11 +14,11 @@ class TextElementAttribute extends PropertyBase
 	}
 	function Get_Value()
 	{
-		return $this->value;
+		return $this->nalue;
 	}
 	function Set_Value($value)
 	{
-		$this->value = $value;
+		$this->nalue = $value;
 		//unset($this->ParData);
 		$this->ParData = null;
 	}

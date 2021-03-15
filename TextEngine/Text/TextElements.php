@@ -1,5 +1,5 @@
 <?php
-class TextElements implements ArrayAccess
+class TextElements implements ArrayAccess, Iterator
 {
     private $inner = array();
     public function offsetSet($offset, $value) {
@@ -133,4 +133,32 @@ class TextElements implements ArrayAccess
         }
         return $elements;
     }
+	
+	private $lastIndex = 0;
+	public function key() {
+		return $this->lastIndex;
+	}
+
+	public function current() {
+		return $this->inner[$this->lastIndex];
+	}
+
+	public function next() 
+	{
+		$this->lastIndex++;
+	}
+
+	public function rewind() {
+		$this->lastIndex = 0;
+	}
+
+	public function seek($position) {
+		$this->lastIndex = $position;
+	}
+
+	public function valid() {
+		$count = $this->GetCount();
+		return $count > 0 && ($this->lastIndex >= 0 && $this->lastIndex < $count);
+	}
+	
 }

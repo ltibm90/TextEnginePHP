@@ -13,4 +13,8 @@ abstract class TextElementFlags
         /// if set [TAG/], tag not flagged autoclosed, if not set tag flagged autoclosed. 
         /// </summary>
 	const TEF_DisableLastSlash  = 16;
+		/// <summary>
+        /// İşaretlenen tagın içeriğini ayrıştırmaz.
+        /// </summary>
+	const TEF_NoParse  = 32;
 }

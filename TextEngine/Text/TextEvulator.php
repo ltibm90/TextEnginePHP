@@ -8,7 +8,6 @@ class TextEvulator
 	private	$Depth = 0;
 	public $LeftTag = "{";
 	public $RightTag = "}";
-	public $NoParseTag = "noparse";
 	public $NoParseEnabled = true;
 	public $ParamChar = '%';
 	public $Aliasses = array();

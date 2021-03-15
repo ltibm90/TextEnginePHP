@@ -7,6 +7,7 @@ class TextEvulatorParser
 	private $pos = 0;
 	private $TextLength;
 	private $in_noparse = false;
+	private $noparse_tag = "";
 	/** @var TextEvulator */
 	public $Evulator;
 	/** @param $baseevulator TextEvulator */
@@ -109,6 +110,7 @@ class TextEvulatorParser
 		}
 		$this->pos = 0;
 		$this->in_noparse = false;
+		$this->noparse_tag = "";
 		$this->Evulator->IsParseMode = false;
 	}
 	private function GetNotClosedPrevTagUntil($tag, $name)
@@ -275,9 +277,10 @@ class TextEvulatorParser
 					$elem = new TextElement();
 					$elem->Parent = $parent;
 
-					$elem->ElemName = $this->Evulator->NoParseTag;
+					$elem->ElemName = $this->noparse_tag;
 					$elem->SlashUsed = true;
 					$this->in_noparse = false;
+					$this->noparse_tag = "";
 					return $elem;
 				}
 				return $tagElement;
@@ -286,9 +289,10 @@ class TextEvulatorParser
 				$this->ParseTagHeader($tagElement);
 				if(empty($tagElement->ElemName)) return null;
 				$intag = false;
-				if($this->Evulator->NoParseEnabled && $tagElement->ElemName == $this->Evulator->NoParseTag)
+				if($this->Evulator->NoParseEnabled && ($tagElement->GetTagFlags() & TextElementFlags::TEF_NoParse) > 0)
 				{
 					$this->in_noparse = true;
+					$this->noparse_tag = $tagElement->ElemName;
 				}
 				return $tagElement;
 
@@ -651,7 +655,7 @@ class TextEvulatorParser
 					}
 					else if($cur == $this->Evulator->RightTag)
 					{
-						if($nparsetext =='/' . $this->Evulator->NoParseTag)
+						if(strtolower($nparsetext) == '/' .  strtolower($this->noparse_tag))
 						{
 							$parfound = false;
 							$this->pos = $i;

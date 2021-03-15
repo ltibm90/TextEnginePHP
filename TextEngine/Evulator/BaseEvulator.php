@@ -118,4 +118,12 @@ abstract class BaseEvulator
 		$res = $this->EvulatePar($pardecoder);
 		return $res;
 	}
+	protected function SetKeyValue($name, $value)
+	{
+		$this->Evulator->DefineParameters[$name] = $value;
+	}
+	protected function UnsetKey($name)
+	{
+		unset($this->Evulator->DefineParameters[$name]);
+	}
 }
