@@ -1,6 +1,6 @@
 <?php
 define("TE_INCLUDEBASE", __DIR__);
-require_once "TextEngine/TextEngine.php";
+require_once "common/TextEngine/TextEngine.php";
 
 
 
@@ -134,6 +134,9 @@ function TemplateTest()
 	$pf->Text = 'ParFormat örneği; Kullanıcı: {%name}, Grup: {%grup}, Random Sayı: {%random()}';
 	echo $pf->Apply($kv);
 
+
+
+
 	$globalInfo = new stdClass();
 	$globalInfo->title = "Cyber-Warrior User Info";
 	$globalInfo->footer = "<b>Ana Sayfa</b>";
@@ -145,6 +148,9 @@ function TemplateTest()
 	$globalInfo->user = &$userInfo;
 	$te->GlobalParameters = &$globalInfo;
 	$te->ParamNoAttrib = true;
+	$te->NoParseEnabled = true;
+	$te->TagInfos["php"]->Flags = TextElementFlags::TEF_NoParse;
+	$te->EvulatorTypes["php"] = "PHPEvulator";
 	//$te->LeftTag = '[';
 	//$te->RightTag = ']';
 	$te->Parse();

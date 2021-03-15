@@ -53,4 +53,28 @@
 	Tüm tip blokları<br>
 	{include name="'template_blocks.html'" xpath='//block[@type]'}
 	
+	<br>
+	PHP Text Örneği <br>
+	{PHP @text=1 username='user.Name' grup='user.GetGroup()'}
+		Kullanıcı adı: <b>$username</b>, Grup: <b>$grup</b>
+	{/PHP}
+	<br>
+	<br>
+	PHP Kod Örneği<br>
+	{PHP username='user.Name' grup='user.GetGroup()'}
+		$text = "Kullanıcı Adı: <b>" . $username . "</b><br>";
+		if(isset($grup))
+		{
+			$text .= "Grup: <b>" . $grup . "</b><br>";
+		}
+		$deger = 123456;
+		$text .= "PHP Kodu ile değer girildi: <b>$deger</b><br>";
+		$this->SetKeyValue("php_keyvalue", "Cyber-Warrior.Org");
+		
+		//Değer kaldırıldı
+		unset($deger);
+	{/PHP}
+	
+	Php Tarafında Girilen KeyValue:<b> {%php_keyvalue}</b>
+	
 </html>
