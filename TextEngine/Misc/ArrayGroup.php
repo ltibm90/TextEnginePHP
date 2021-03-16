@@ -23,7 +23,7 @@ class ArrayGroup
 		$key = array_search($array, $this->innerArray, true);
 		if($key >= 0)
 		{
-			$this->RemoveAt($index);
+			$this->RemoveAt($key);
 		}
 	}
 	public function RemoveAt($index)
@@ -62,5 +62,19 @@ class ArrayGroup
 			}
 		}
 		return null;
+	}
+	public function GetValue($key)
+	{
+		return $this->GetSingleValueForAll($key);
+	}
+	public function SetValue($name, &$object)
+	{
+		if($this->length == 0)
+		{
+			$arr = array();
+			$this->AddArray($arr);
+		}
+		$this->innerArray[$this->length - 1][$name] = &$object;
+		
 	}
 }

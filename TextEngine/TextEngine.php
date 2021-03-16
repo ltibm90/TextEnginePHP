@@ -1,7 +1,6 @@
 <?php
 if(!defined("TE_PATH_PREFIX")) define("TE_PATH_PREFIX", "");
 if(!defined("TE_CUSTOM_EVULATOR_PATH")) define("TE_CUSTOM_EVULATOR_PATH", "");
-if(!defined("TE_INCLUDEBASE")) define("TE_INCLUDEBASE", __DIR__);
 require_once TE_PATH_PREFIX .'Misc/PropertyBase.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttribute.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttributes.php';

@@ -50,15 +50,13 @@ class ForEvulator extends BaseEvulator
 		{
 			return null;
 		}
-
-		$localVars = array();
-		$_lv_index = $this->Evulator->LocalVariables->AddArray($localVars);
+		$this->CreateLocals();
 		//$this->StorePreviousValue($varname);
 		$result = new TextEvulateResult();
 
 		for($i = $start; $i < $to; $i += $step)
 		{
-			$localVars[$varname] = $i;
+			$this->SetLocal($varname, $i);
 			//$this->SetVar($varname, $i);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
 			if(!$cresult) continue;
@@ -67,7 +65,7 @@ class ForEvulator extends BaseEvulator
 			{
 				$result->Result = TextEvulateResult::EVULATE_RETURN;
 				//$this->RemoveVar($varname);
-				$this->Evulator->LocalVariables->RemoveAt($_lv_index);
+				$this->DestroyLocals();
 				return $result;
 			}
 			else if($cresult->Result == TextEvulateResult::EVULATE_BREAK)
@@ -76,7 +74,7 @@ class ForEvulator extends BaseEvulator
 			}
 		}
 		//$this->RemoveVar($varname);
-		$this->Evulator->LocalVariables->RemoveAt($_lv_index);
+		$this->DestroyLocals();
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
 		return $result;
 	}

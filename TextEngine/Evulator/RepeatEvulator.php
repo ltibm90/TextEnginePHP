@@ -13,13 +13,12 @@ class RepeatEvulator extends BaseEvulator
 		$varname = 'current_repeat';
 		
 		//$this->StorePreviousValue($varname);
-		$localVars = array();
-		$index = $this->Evulator->LocalVariables->AddArray($localVars);
+		$this->CreateLocals();
 		$result = new TextEvulateResult();
 		for($i = 0; $i < $to; $i++)
 		{
 			//$this->SetVar($varname, $i);
-			$localVars[$varname] = $i;
+			$this->SetLocal($varname, $i);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
 			if(!$cresult) continue;
 			$result->TextContent .= $cresult->TextContent;
@@ -27,7 +26,7 @@ class RepeatEvulator extends BaseEvulator
 			{
 				$result->Result = TextEvulateResult::EVULATE_RETURN;
 				//$this->RemoveVar($varname);
-				$this->Evulator->LocalVariables->RemoveAt($index);
+				$this->DestroyLocals();
 				return $result;
 			}
 			else if($cresult->Result == TextEvulateResult::EVULATE_BREAK)
@@ -36,7 +35,7 @@ class RepeatEvulator extends BaseEvulator
 			}
 		}
 		//$this->RemoveVar($varname);
-		$this->Evulator->LocalVariables->RemoveAt($index);
+		$this->DestroyLocals();
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
 		return $result;
 	}

@@ -12,14 +12,13 @@ class ForeachEvulator extends BaseEvulator
 		$inlist = $this->EvulateAttribute($tag->ElemAttr["in"]);
 		if(!$inlist || !is_array($inlist)) return null;
 		//$this->StorePreviousValue($varname);
-		$localVars = array();
-		$_lv_index = $this->Evulator->LocalVariables->AddArray($localVars);
+		$this->CreateLocals();
 		$total = 0;
 		$result = new TextEvulateResult();
 		foreach ($inlist as $index => $item) {
-			$localVars[$varname] = $item;
-			$localVars["loop_count"] = $total;
-			$localVars["loop_key"] = $index;
+			$this->SetLocal($varname, $item);
+			$this->SetLocal("loop_count", $total);
+			$this->SetLocal("loop_key", $index);
 			//$this->SetVar($varname, $item);
 			//$this->SetVar('loop_count', $total);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
@@ -29,7 +28,7 @@ class ForeachEvulator extends BaseEvulator
 			{
 				$result->Result = TextEvulateResult::EVULATE_RETURN;
 				//$this->RemoveVar($varname);
-				$this->Evulator->LocalVariables->RemoveAt($_lv_index);
+				$this->DestroyLocals();
 				return $result;
 			}
 			else if($cresult->Result == TextEvulateResult::EVULATE_BREAK)
@@ -38,7 +37,7 @@ class ForeachEvulator extends BaseEvulator
 			}
 			$total++;
 		}
-		$this->Evulator->LocalVariables->RemoveAt($_lv_index);
+		$this->DestroyLocals();
 		//$this->RemoveVar($varname);
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
 		return $result;

@@ -1,10 +1,15 @@
 <?php
-
-
 class IncludeEvulator extends BaseEvulator
 {
+	private function GetLastDir()
+	{
+		$value = $this->Evulator->LocalVariables->GetValue("_DIR_");
+		if ($value == null || $value == "") return "";
+		return $value . "/";
+	}
 	public function Render(&$tag, &$vars)
 	{
+		$this->CreateLocals();
 		if ($this->Evulator->IsParseMode)
 		{
 			return $this->Render_Parse($tag, $vars);
@@ -13,8 +18,10 @@ class IncludeEvulator extends BaseEvulator
 	}
 	public function Render_Parse(&$tag, &$vars)
 	{
-		$loc = TE_INCLUDEBASE . "/" . $this->EvulateAttribute($tag->ElemAttr['name']);
+		$loc = $this->GetLastDir() . $this->EvulateAttribute($tag->ElemAttr['name']);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
+		$dirname = dirname($loc);
+		$this->SetLocal("_DIR_", $dirname);
 		$xpath = $tag->GetAttribute("xpath");
 		$xpathold = false;
 		if (empty($xpath))
@@ -53,9 +60,10 @@ class IncludeEvulator extends BaseEvulator
 	}
  	public function Render_Default(&$tag, &$vars)
 	{
-		$loc = TE_INCLUDEBASE . '/' .  $this->EvulateAttribute($tag->ElemAttr['name']);
+		$loc = $this->GetLastDir() .  $this->EvulateAttribute($tag->ElemAttr['name']);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
-		
+		$dirname = dirname($loc);
+		$this->SetLocal("_DIR_", $dirname);
 		$parse = $tag->GetAttribute('parse', true);
 		$content = file_get_contents($loc);
 		$result = new TextEvulateResult();
@@ -118,5 +126,9 @@ class IncludeEvulator extends BaseEvulator
 		}
 		return $result;
 	}
-
+	public function RenderFinish(&$tag, &$vars, &$latestResult)
+	{
+		BaseEvulator::RenderFinish($tag, $vars, $latestResult);
+		$this->DestroyLocals();
+	}
 }

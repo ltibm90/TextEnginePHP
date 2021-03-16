@@ -5,6 +5,7 @@ abstract class BaseEvulator
 	/** @var TextEvulator */
 	protected $Evulator;
 	protected $prevvalue = null;
+	private $localVars;
 	public function __construct(&$evulator)
 	{
 		$this->Evulator =& $evulator;
@@ -126,4 +127,26 @@ abstract class BaseEvulator
 	{
 		unset($this->Evulator->DefineParameters[$name]);
 	}
+	
+	protected function CreateLocals()
+	{
+		if ($this->localVars) return;
+		$this->localVars = array();
+		$this->Evulator->LocalVariables->AddArray($this->localVars);
+	}
+	protected function DestroyLocals()
+	{
+		if (!$this->localVars) return;
+		$this->Evulator->LocalVariables->RemoveArray($this->localVars);
+		$this->localVars = null;
+	}
+	protected function SetLocal($name, &$value)
+	{
+		$this->localVars[$name] = &$value;
+	}
+	protected function &GetLocal($name)
+	{
+		return $this->localVars[$name];
+	}
+	
 }

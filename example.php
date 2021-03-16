@@ -1,5 +1,4 @@
 <?php
-define("TE_INCLUDEBASE", __DIR__);
 require_once "TextEngine/TextEngine.php";
 
 
@@ -145,6 +144,8 @@ function TemplateTest()
 	$globalInfo->currentUser->Access = 1;
 	$globalInfo->OnlineUsers = ["MacMillan", "Üye2", "Üye3", "Üye4"];
 	$te = new TextEvulator(__DIR__ . "/template.html", true);
+	
+	//$te->SetDir(__DIR__);
 	$globalInfo->user = &$userInfo;
 	$te->GlobalParameters = &$globalInfo;
 	$te->ParamNoAttrib = true;

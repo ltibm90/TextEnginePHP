@@ -437,6 +437,7 @@ class TextElement extends PropertyBase
 		$result = new TextEvulateResult();
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
 		$result->TextContent = $senderstr;
+		$handler = $this->BaseEvulator->GetHandler();
 		if ($this->ElementType == TextElementType::CommentNode)
 		{
 			return null;
@@ -444,11 +445,19 @@ class TextElement extends PropertyBase
 
 		if ($this->ElemName == '#text') {
 			
+			if ($handler && !$handler->OnRenderPre($this, $vars)) return $result;
 			if($this->BaseEvulator->EvulatorTypes->Text != "" && class_exists($this->BaseEvulator->EvulatorTypes->Text))
 			{
 			
 				$evulator = new $this->BaseEvulator->EvulatorTypes->Text($this->BaseEvulator);
-				return $evulator->Render($this, $vars);
+				$rResult = $evulator->Render($this, $vars);
+				if($handler) $handler->OnRenderPost($this, $vars, $rResult);
+				if($handler && $handler->OnRenderFinishPre($this, $vars, $rResult))
+				{
+					$evulatorObj->RenderFinish($this, $vars, $rResult);
+					if($handler) $handler->OnRenderFinishPost($this, $vars, $rResult);
+				}
+				return $rResult;
 			}
 			$result->TextContent = $this->Value;
 			return $result;
@@ -456,13 +465,19 @@ class TextElement extends PropertyBase
 
 		if ($this->ElementType == TextElementType::Parameter) 
 		{
+			if ($handler && !$handler->OnRenderPre($this, $vars)) return $result;
 			$pclass = $this->BaseEvulator->EvulatorTypes->Param;
-	
 			if($pclass && class_exists($pclass))
 			{
 
 				$evulator = new $pclass($this->BaseEvulator);
 				$vresult = $evulator->Render($this, $vars);
+				if($handler) $handler->OnRenderPost($this, $vars, $vresult);
+				if($handler && $handler->OnRenderFinishPre($this, $vars, $vresult))
+				{
+					$evulatorObj->RenderFinish($this, $vars, $vresult);
+					if($handler) $handler->OnRenderFinishPost($this, $vars, $vresult);
+				}
 				$result->Result = $vresult->Result;
 				if ($vresult->Result == TextEvulateResult::EVULATE_TEXT) {
 					$result->TextContent .= $vresult->TextContent;
@@ -475,7 +490,8 @@ class TextElement extends PropertyBase
 		}
 		if ($end == 0) $end = $this->GetSubElementsCount();
 		for ($i = $start; $i < $end; $i++) {
-			$subElement = $this->SubElements[$i];
+			unset($subElement);
+			$subElement = &$this->SubElements[$i];
 			//$className = $subElement->ElemName . 'Evulator';
 			$className = '';
 			if($subElement->ElemName != "#text")
@@ -491,16 +507,19 @@ class TextElement extends PropertyBase
 				$className = $this->BaseEvulator->EvulatorTypes->Param;
 
 			}
-				
+			if($handler && !$handler->OnRenderPre($subElement, $vars)) continue;
 			if (!empty($className) && class_exists($className)) 
 			{
-				
+
 				$evulatorObj = new $className($this->BaseEvulator);
 				unset($vresult);
 				$vresult = $evulatorObj->Render($subElement, $vars);
+				if($handler) $handler->OnRenderPost($subElement, $vars, $vresult);
 				if (!$vresult)
 				{
+					if($handler && !$handler->OnRenderFinishPre($subElement, $vars, $vresult)) continue;
 					$evulatorObj->RenderFinish($subElement, $vars, $vresult);
+					if($handler) $handler->OnRenderFinishPost($subElement, $vars, $vresult);
 					continue;
 				}
 				if ($vresult->Result == TextEvulateResult::EVULATE_DEPTHSCAN) {
@@ -508,7 +527,11 @@ class TextElement extends PropertyBase
 					unset($vresult);
 					$vresult = &$nresult;
 				}
-				$evulatorObj->RenderFinish($subElement, $vars, $vresult);
+				if($handler && $handler->OnRenderFinishPre($subElement, $vars, $vresult))
+				{
+					$evulatorObj->RenderFinish($subElement, $vars, $vresult);
+					if($handler) $handler->OnRenderFinishPost($subElement, $vars, $vresult);
+				}
 				if(!$vresult) continue;
 			
 			}

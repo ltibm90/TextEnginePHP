@@ -38,6 +38,17 @@ class TextEvulator
 	public $CharMap = array();
 	public $CustomDataSingle;
 	public $AllowCharMap;
+	public $EvulatorHandler;
+	public function &GetHandler()
+	{
+		$handler = null;
+		if($this->EvulatorHandler)
+		{
+			if(!is_callable($this->EvulatorHandler)) return $this->EvulatorHandler;
+			$handler = &call_user_func($this->EvulatorHandler);
+		}
+		return $handler;
+	}
 	public function __construct($text = null, $isfile = false)
 	{
 		$this->TagInfos = new TextElementInfos();
@@ -52,6 +63,15 @@ class TextEvulator
 		} else {
 			$this->Text = $text;
 		}
+		$this->InitAll();
+		if($isfile)
+		{
+			$this->SetDir(dirname($text));
+		}
+	}
+	public function InitAll()
+	{
+		$this->ClearAllInfos();
 		$this->InitStockTagOptions();
 		$this->InitEvulator();
 		$this->InitAmpMaps();
@@ -115,5 +135,24 @@ class TextEvulator
 		if (!$this->AllowParseCondition || !$this->IsParseMode || (!($element->GetTagFlags() & TextElementFlags::TEF_ConditionalTag) != 0)) return;
 		$indis = $element->Index();
 		$element->Parent->EvulateValue($indis, $indis + 1);
+	}
+	public function SetDir($dir)
+	{
+		$this->LocalVariables->SetValue("_DIR_", $dir);
+	}
+	public function ClearAllInfos()
+	{
+		$this->TagInfos->Clear();
+		$this->EvulatorTypes->Clear();
+		$this->AmpMaps = [];
+		$this->EvulatorTypes->Param = null;
+		$this->EvulatorTypes->Text = null;
+		$this->EvulatorTypes->GeneralType = null;
+	}
+	public function ClearElements()
+	{
+		$this->Elements->SubElements->Clear();
+		$this->Elements->ElemName = "#document";
+		$this->Elements->ElementType = TextElementType::Document;
 	}
 }
