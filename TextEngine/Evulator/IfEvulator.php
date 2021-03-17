@@ -21,11 +21,11 @@ class IfEvulator  extends  BaseEvulator
 			{
 				if(!$sil)
 				{
-					if ($sub.ElemName == "else")
+					if (mb_strtolower($sub.ElemName) == "else")
 					{
 						$conditionok = true;
 					}
-					else if ($sub.ElemName == "elif")
+					else if (mb_strtolower($sub.ElemName) == "elif")
 					{
 						$conditionok = $this.ConditionSuccess(sub);
 					}
@@ -36,7 +36,7 @@ class IfEvulator  extends  BaseEvulator
 			}
 			else
 			{
-				if($sub->ElemName == "else" || $sub->ElemName == "elif")
+				if(mb_strtolower($sub->ElemName) == "else" || mb_strtolower($sub->ElemName) == "elif")
 				{
 					$sil = true;
 					$i--;
@@ -68,7 +68,7 @@ class IfEvulator  extends  BaseEvulator
 			$total = 0;
 			while ($elseitem != null)
 			{
-				if($elseitem->elemName == 'else')
+				if(mb_strtolower($elseitem->elemName) == 'else')
 				{
 					$result->Start = $elseitem->Index() + 1;
 					$result->Result = TextEvulateResult::EVULATE_DEPTHSCAN;

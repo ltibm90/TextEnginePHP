@@ -6,23 +6,24 @@ class TextElementInfos implements ArrayAccess
 	public $AutoInitialize = true;
 	public function &offsetGet($offset) 
 	{
-		if(isset($this->lastElement) && $this->lastElement->ElementName == strtolower($offset))
+		$info = null;
+		if($offset == "#text") return $info; 
+		if(isset($this->lastElement) && $this->lastElement->ElementName == mb_strtolower($offset))
 		{
 			return $this->lastElement;
 		}
-		$info = null;
-		if(!isset($this->inner[strtolower($offset)]))
+		if(!isset($this->inner[mb_strtolower($offset)]))
 		{
 			if($this->AutoInitialize)
 			{
 				$info = new TextElementInfo();
-				$info->ElementName = strtolower($offset);
+				$info->ElementName = mb_strtolower($offset);
 				$this->inner[$info->ElementName] = &$info;
 			}
 		}
 		else
 		{
-			$info = &$this->inner[strtolower($offset)];
+			$info = &$this->inner[mb_strtolower($offset)];
 		}
 		unset($this->lastElement);
 		$this->lastElement = &$info;
@@ -31,7 +32,7 @@ class TextElementInfos implements ArrayAccess
     public function offsetSet($offset, $value) 
 	{
 		if(is_null($value)) return;
-		$info = $this->inner[strtolower($offset)];
+		$info = $this->inner[mb_strtolower($offset)];
 		if(isset($info))
 		{
 			if($info == $this->lastElement)
@@ -40,16 +41,16 @@ class TextElementInfos implements ArrayAccess
 				$this->Remove($info);
 			}
 		}
-		$value->ElementName = strtolower($offset);
+		$value->ElementName = mb_strtolower($offset);
 		$this->inner[$value->ElementName] = &$value;
     }
     
     public function offsetExists($offset) {
-        return isset($this->inner[strtolower($offset)]);
+        return isset($this->inner[mb_strtolower($offset)]);
     }
     
     public function offsetUnset($offset) {
-        unset($this->inner[strtolower($offset)]);
+        unset($this->inner[mb_strtolower($offset)]);
     }
 	public function GetCount()
 	{
@@ -67,7 +68,7 @@ class TextElementInfos implements ArrayAccess
     }
 	public function HasTagInfo($tagName)
 	{
-		return isset($this->inner[strtolower($tagName)]);
+		return isset($this->inner[mb_strtolower($tagName)]);
 	}
 	public function GetElementFlags($tagName)
 	{

@@ -27,7 +27,7 @@ class TextElementAttributes implements ArrayAccess, Iterator
     }
     
     public function offsetUnset($offset) {
-        unset($this->inner[strtolower($offset)]);
+        unset($this->inner[mb_strtolower($offset)]);
     }
 	public function HasAttribute($name)
 	{
@@ -107,7 +107,7 @@ class TextElementAttributes implements ArrayAccess, Iterator
 			unset($item);
 			$item = &$this->inner[$i];
 			
-			if(strtolower($name) == strtolower($item->Name))
+			if(mb_strtolower($name) == mb_strtolower($item->Name))
 			{
 
 				return $i;

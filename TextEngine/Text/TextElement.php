@@ -126,22 +126,22 @@ class TextElement extends PropertyBase
 
 	public function NameEquals($name, $matchalias = false)
 	{
-		if (strtolower($this->ElemName) == strtolower($name)) return true;
+		if (mb_strtolower($this->ElemName) == mb_strtolower($name)) return true;
 		if ($matchalias) {
-			if (array_key_exists(strtolower($name), $this->BaseEvulator->Aliasses)) {
+			if (array_key_exists(mb_strtolower($name), $this->BaseEvulator->Aliasses)) {
 				$alias = $this->BaseEvulator->Aliasses[$name];
 				if (!is_array($alias)) {
 					if ($alias == $this->ElemName) return true;
 				} else {
-					if (array_value_exists(strtolower($this->ElemName), $alias)) return true;
+					if (array_value_exists(mb_strtolower($this->ElemName), $alias)) return true;
 				}
 			}
-			else if (array_key_exists(strtolower($this->ElemName), $this->BaseEvulator->Aliasses)) {
-				$alias = $this->BaseEvulator->Aliasses[strtolower($this->ElemName)];
+			else if (array_key_exists(mb_strtolower($this->ElemName), $this->BaseEvulator->Aliasses)) {
+				$alias = $this->BaseEvulator->Aliasses[mb_strtolower($this->ElemName)];
 				if (!is_array($alias)) {
-					if (strtolower($alias) == strtolower($name)) return true;
+					if (mb_strtolower($alias) == mb_strtolower($name)) return true;
 				} else {
-					if (array_value_exists(strtolower($name), $alias)) return true;
+					if (array_value_exists(mb_strtolower($name), $alias)) return true;
 				}
 			}
 			
@@ -496,7 +496,7 @@ class TextElement extends PropertyBase
 			$className = '';
 			if($subElement->ElemName != "#text")
 			{
-				$className = $this->BaseEvulator->EvulatorTypes[strtolower($subElement->ElemName)];
+				$className = $this->BaseEvulator->EvulatorTypes[mb_strtolower($subElement->ElemName)];
 				if(!$className)
 				{
 					$className = $this->BaseEvulator->EvulatorTypes->GeneralType;
@@ -559,7 +559,7 @@ class TextElement extends PropertyBase
 	public function GetElementsHasAttributes($name, $depthscan = false, $limit = 0)
 	{
 		$elements = new TextElements();
-		$lower = strtolower($name);
+		$lower = mb_strtolower($name);
 		for ($i = 0; $i < $this->GetSubElementsCount(); $i++)
 		{
 			unset($elem);
@@ -585,13 +585,13 @@ class TextElement extends PropertyBase
 	public function GetElementsByTagName($name, $depthscan = false, $limit = 0)
 	{
 		$elements = new TextElements();
-		$lower = strtolower($name);
+		$lower = mb_strtolower($name);
 		
 		for ($i = 0; $i < $this->GetSubElementsCount(); $i++)
 		{
 			unset($elem);
 			$elem = &$this->SubElements[$i];
-			if (strtolower($elem->ElemName) == $lower || $lower == "*")
+			if (mb_strtolower($elem->ElemName) == $lower || $lower == "*")
 			{
 				$elements->Add($elem);
 

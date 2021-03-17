@@ -11,12 +11,12 @@ class SwitchEvulator extends BaseEvulator
 		for($i = 0; $i < $tag->GetSubElementsCount(); $i++)
 		{
 			$elem = $tag->SubElements[$i];
-			if($elem->ElemName == 'default')
+			if(mb_strtolower($elem->ElemName) == 'default')
 			{
 				$default = $elem;
 				continue;
 			}
-			else if($elem->ElemName != 'case')
+			else if(mb_strtolower($elem->ElemName) != 'case')
 			{
 				continue;
 			}

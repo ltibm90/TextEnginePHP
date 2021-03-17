@@ -54,12 +54,12 @@ function array_value_exists($value, $array, $ignorecase = false)
 	$nval = $value;
 	if($ignorecase)
 	{
-		$nval = strtolower($nval);
+		$nval = mb_strtolower($nval);
 	}
 	foreach ($array as $index => $item) {
 		if($ignorecase)
 		{
-			if($nval == strtolower($item)) return true;
+			if($nval == mb_strtolower($item)) return true;
 		}
 		else
 		{

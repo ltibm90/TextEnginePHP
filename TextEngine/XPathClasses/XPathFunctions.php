@@ -22,7 +22,7 @@ class XPathFunctions
 	}
 	public function LowerCase($x)
 	{
-		return strtolower($x);
+		return mb_strtolower($x);
 	}
 	public function UpperCase($x)
 	{

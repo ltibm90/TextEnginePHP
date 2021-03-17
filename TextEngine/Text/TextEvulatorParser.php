@@ -559,7 +559,7 @@ class TextEvulatorParser
 						$tagElement->DirectClosed = true;
 						$tagElement->Closed = true;
 					}
-					$elname = strtolower($tagElement->ElemName);
+					$elname = mb_strtolower($tagElement->ElemName);
 					
 					if (($this->Evulator->TagInfos->GetElementFlags($elname) & TextElementFlags::TEF_AutoClosedTag) != 0)
 					{
@@ -655,7 +655,7 @@ class TextEvulatorParser
 					}
 					else if($cur == $this->Evulator->RightTag)
 					{
-						if(strtolower($nparsetext) == '/' .  strtolower($this->noparse_tag))
+						if(mb_strtolower($nparsetext) == '/' .  mb_strtolower($this->noparse_tag))
 						{
 							$parfound = false;
 							$this->pos = $i;
