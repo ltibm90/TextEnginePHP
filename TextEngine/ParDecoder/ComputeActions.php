@@ -82,6 +82,7 @@ class ComputeActions
 			case '.':
 				return $item1 . $item2;
 		}
+		if(!$item1) return $item2;
 		return $item1;
 	}
 

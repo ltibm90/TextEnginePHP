@@ -491,6 +491,10 @@ class TextEvulatorParser
 					} else {
 						$firstslashused = true;
 					}
+					if(($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0)
+					{
+						$current .= $cur;
+					}
 					continue;
 				}
 				if ($cur ==  '=') {
