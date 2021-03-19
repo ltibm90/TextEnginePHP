@@ -6,6 +6,7 @@ abstract class BaseEvulator
 	protected $Evulator;
 	protected $prevvalue = null;
 	private $localVars;
+	private $localVarsId;
 	public function __construct(&$evulator)
 	{
 		$this->Evulator =& $evulator;
@@ -31,6 +32,7 @@ abstract class BaseEvulator
 		$index = -1;
 		if($additionalparams != null)
 		{
+
 			$index = $this->Evulator->LocalVariables->AddArray($additionalparams);
 		}
 		$er =  $pardecoder->Items->Compute($this->Evulator->GlobalParameters, null, $this->Evulator->LocalVariables);
@@ -132,13 +134,14 @@ abstract class BaseEvulator
 	{
 		if ($this->localVars) return;
 		$this->localVars = array();
-		$this->Evulator->LocalVariables->AddArray($this->localVars);
+		$this->localVarsId = $this->Evulator->LocalVariables->AddArray($this->localVars);
 	}
 	protected function DestroyLocals()
 	{
 		if (!$this->localVars) return;
-		$this->Evulator->LocalVariables->RemoveArray($this->localVars);
+		$this->Evulator->LocalVariables->RemoveAt($this->localVarsId);
 		$this->localVars = null;
+		
 	}
 	protected function SetLocal($name, &$value)
 	{

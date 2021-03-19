@@ -32,7 +32,7 @@ class ArrayGroup
 		$this->length--;
 		array_splice($this->innerArray, $index, 1);
 	}
-	public function GetArray($index)
+	public function &GetArray($index)
 	{
 		if($index > $this->Length() || $index < 0) return null;
 		return $this->innerArray[$index];
@@ -41,7 +41,8 @@ class ArrayGroup
 	{
 		for($i = $this->length - 1; $i >= 0; $i--)
 		{
-			$curArray = $this->GetArray($i);
+			unset($curArray);
+			$curArray = &$this->GetArray($i);
 			if(array_key_exists($key, $curArray))
 			{
 				return true;
@@ -51,13 +52,13 @@ class ArrayGroup
 	}
 	public function GetSingleValueForAll($key)
 	{
-	
 		for($i = $this->length - 1; $i >= 0; $i--)
 		{
-			$curArray = $this->GetArray($i);
+			unset($curArray);
+			$curArray = &$this->GetArray($i);
+			if(!$curArray) continue;
 			if(array_key_exists($key, $curArray))
 			{
-				
 				return $curArray[$key];
 			}
 		}

@@ -452,11 +452,12 @@ class TextElement extends PropertyBase
 				$evulator = new $this->BaseEvulator->EvulatorTypes->Text($this->BaseEvulator);
 				$rResult = $evulator->Render($this, $vars);
 				if($handler) $handler->OnRenderPost($this, $vars, $rResult);
-				if($handler && $handler->OnRenderFinishPre($this, $vars, $rResult))
+				if(!$handler || $handler->OnRenderFinishPre($this, $vars, $rResult))
 				{
-					$evulatorObj->RenderFinish($this, $vars, $rResult);
+					$evulator->RenderFinish($this, $vars, $rResult);
 					if($handler) $handler->OnRenderFinishPost($this, $vars, $rResult);
 				}
+
 				return $rResult;
 			}
 			$result->TextContent = $this->Value;
@@ -473,11 +474,12 @@ class TextElement extends PropertyBase
 				$evulator = new $pclass($this->BaseEvulator);
 				$vresult = $evulator->Render($this, $vars);
 				if($handler) $handler->OnRenderPost($this, $vars, $vresult);
-				if($handler && $handler->OnRenderFinishPre($this, $vars, $vresult))
+				if(!$handler || $handler->OnRenderFinishPre($this, $vars, $vresult))
 				{
-					$evulatorObj->RenderFinish($this, $vars, $vresult);
+					$evulator->RenderFinish($this, $vars, $vresult);
 					if($handler) $handler->OnRenderFinishPost($this, $vars, $vresult);
 				}
+
 				$result->Result = $vresult->Result;
 				if ($vresult->Result == TextEvulateResult::EVULATE_TEXT) {
 					$result->TextContent .= $vresult->TextContent;
@@ -527,7 +529,7 @@ class TextElement extends PropertyBase
 					unset($vresult);
 					$vresult = &$nresult;
 				}
-				if($handler && $handler->OnRenderFinishPre($subElement, $vars, $vresult))
+				if(!$handler || $handler->OnRenderFinishPre($subElement, $vars, $vresult))
 				{
 					$evulatorObj->RenderFinish($subElement, $vars, $vresult);
 					if($handler) $handler->OnRenderFinishPost($subElement, $vars, $vresult);

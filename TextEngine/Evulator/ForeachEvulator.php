@@ -19,6 +19,7 @@ class ForeachEvulator extends BaseEvulator
 			$this->SetLocal($varname, $item);
 			$this->SetLocal("loop_count", $total);
 			$this->SetLocal("loop_key", $index);
+
 			//$this->SetVar($varname, $item);
 			//$this->SetVar('loop_count', $total);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
