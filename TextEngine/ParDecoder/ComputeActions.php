@@ -26,7 +26,7 @@ class ComputeActions
 		if (is_object($item1) || is_object($item2)) {
 			return null;
 		}
-		if ($operator == "||" || $operator == "|" || $operator == "or" || $operator == "&&" || $operator == "&" || $operator == "and") {
+		if (($operator == "||" ||  $operator == "or" || $operator == "&&" || $operator == "and") || ((!is_numeric($item1) || !is_numeric($item2)) && ($operator == "&" || $operator == "|") )) {
 			
 			$lefstate = !empty($item1);
 			$rightstate = !empty($item2);
@@ -88,8 +88,6 @@ class ComputeActions
 
 	public static function CallMethodSingle($object, $name, $params)
 	{
-	
-
 		if (!$object) return null;
 		
 		if (is_array($object)) {

@@ -274,7 +274,7 @@ class ParItem extends InnerItem
 						continue;
 					}
 					$opstr = $current->value;
-                    if ($opstr == "||" || $opstr == "|" || $opstr == "or" || $opstr == "&&" || $opstr == "&" || $opstr == "and" || $opstr == "?")
+                    if ($opstr == "||" || /*$opstr == "|" || */ $opstr == "or" || $opstr == "&&" || /* $opstr == "&" ||*/ $opstr == "and" || $opstr == "?")
 					{
 						if ($waitop2 != "")
 						{
@@ -315,16 +315,16 @@ class ParItem extends InnerItem
 
 
 						}
-                        if ($opstr == "||" || $opstr == "|" || $opstr == "or")
+                        if ($opstr == "||" || /*$opstr == "|" ||*/ $opstr == "or")
 						{
 							if ($state)
 							{
 								$lastvalue = true;
-								if ($opstr != "|")
-								{
+								/*if ($opstr != "|")
+								{*/
 									$cr->result[] = true;
 									return $cr;
-								}
+								//}
 							}
 							else
 							{
@@ -336,11 +336,11 @@ class ParItem extends InnerItem
 							if (!$state)
 							{
 								$lastvalue = false;
-								if ($opstr != "&")
-								{
+								/*if ($opstr != "&")
+								{*/
 									$cr->result[] = false;
 									return $cr;
-								}
+								//}
 							}
 							else
 							{

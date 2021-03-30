@@ -1,10 +1,21 @@
 <?php
-class TextEvulator
+class TextEvulator extends PropertyBase
 {
 	public $SurpressError;
+	private $text;
+	public function Get_Text()
+	{
+		return $this->text;
+	}
+	public function Set_Text($value)
+	{
+		$this->text = $value;
+		$this->NeedParse = true;
+	}
 	public $Text;
 	/** @var TextElement */
 	public $Elements;
+	private $NeedParse;
 	private	$Depth = 0;
 	public $LeftTag = "{";
 	public $RightTag = "}";
@@ -68,6 +79,7 @@ class TextEvulator
 		{
 			$this->SetDir(dirname($text));
 		}
+		$this->NeedParse = true;
 	}
 	public function InitAll()
 	{
@@ -124,6 +136,7 @@ class TextEvulator
 	{
 		$parser = new TextEvulatorParser($this);
 		$parser->Parse($this->Elements, $this->Text);
+		$this->NeedParse = false;
 	}
 	public function ParseText($baselement, $text)
 	{
@@ -154,5 +167,10 @@ class TextEvulator
 		$this->Elements->SubElements->Clear();
 		$this->Elements->ElemName = "#document";
 		$this->Elements->ElementType = TextElementType::Document;
+	}
+	public function EvulateValue(&$vars = null, $autoparse = true)
+	{
+		if ($autoparse && $this->NeedParse) $this->Parse();
+		return this.Elements.EvulateValue(0, 0, $vars);
 	}
 }
