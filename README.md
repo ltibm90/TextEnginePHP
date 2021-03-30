@@ -9,7 +9,7 @@
             //User can change Left and Right tag.
             //$evulator->LeftTag = '[';
             //$evulator->RightTag = ']';
-            $evulator->GloblaParameters = &$data;
+            $evulator->GlobalParameters = &$data;
             $evulator->Text = "{if is_loaded}Loaded{/if} string data: {%str_data}, int data: {%int_data}";
             //Parse content.
             $evulator->Parse();
@@ -68,7 +68,7 @@
             //evulator->Text = "{FOR var=i start=0 step=1 to=5}Current Step: {%i}{/FOR}";
             $kv = array();
             $kv["name"] = "TextEngine";
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "{FOR var=i start=0 step=1 to='name.Length'}{%name[i]}{if i == 4}{continue}{/if}{if i==7}{break}{/if}-{/FOR}";
             $evulator->ParamNoAttrib = true;
             $evulator->Parse();
@@ -82,7 +82,7 @@
             //evulator->Text = "{FOREACH var=item in=list}{/FOR}";
 			$kv = array();
             $kv["list"] = ["item1", "item2", "item3"];
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "{FOREACH var=current in=list}{%current}\r\n{/FOREACH}";
             $evulator->ParamNoAttrib = true;
             $evulator->Parse();
@@ -95,7 +95,7 @@
             //evulator->Text = "{IF statement}true{elif statement}elif true{/elif}{else}false{/IF}";
 			$kv = array();
             $kv["status"] = 3;
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->ParamNoAttrib = true;
             $evulator->Text = "{IF status==1}status = 1{ELIF status == 2}status = 2 {ELSE}status on else, value: {%status}{/IF}";
             $evulator->Parse();
@@ -136,7 +136,7 @@
             $kv = array();
             $kv["status"] = true;
             $kv["total"] = 5;
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "{set if=status name=variable value='total * 2'} variable is: {%variable}, {unset name=variable}\r\nvariable is: {%variable}";
             $evulator->ParamNoAttrib = true;
             $evulator->Parse();
@@ -150,7 +150,7 @@
             $evulator = new TextEvulator();
             $kv = array();
             $kv["total"] = 2;
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "{switch c=total}
                                 {case v=1}Value 1{/case}
                                 {case v=2}Value 2{/case}
@@ -170,7 +170,7 @@
             $kv = array();
             $kv["name"] = "TextEngine";
             $kv["value"] = "1234";
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "";
             $evulator->ParamNoAttrib = true;
 			//Firs activate PHP evulator
@@ -189,7 +189,7 @@
             $kv = array();
             $kv["name"] = "TextEngine";
             $kv["value"] = "1234";
-            $evulator->GloblaParameters = &$kv;
+            $evulator->GlobalParameters = &$kv;
             $evulator->Text = "";
             $evulator->ParamNoAttrib = true;
 			//Firs activate PHP evulator
