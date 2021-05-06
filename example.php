@@ -160,7 +160,6 @@ function TemplateTest()
 	$wtc->Items [] = "Item4";
 	$wtc->Items [] = "Item5";
 	$wtc->Items [] = "Item6";
-    echo "ok";
 
 	$globalInfo = new stdClass();
 	$globalInfo->title = "Cyber-Warrior User Info";
