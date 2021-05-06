@@ -241,15 +241,19 @@
             $evulator->GlobalParameters = $wtc;
             $evulator->Text = "[while Next()][%loop_count + 1]: -[%Get()][/while]";
             $evulator->ParamNoAttrib = true;
+	    $evulator->LeftTag = '[';
+	    $evulator->RightTag = ']';
             $evulator->Parse();
             //Output: 1: -Item12: -Item23: -Item34: -Item45: -Item56: -Item6
             $result = $evulator->Elements->EvulateValue()->TextContent;
 ```
 ## DoEvulator Usage
-```csharp
+```php
 	$evulator = new TextEvulator();
             $evulator->Text = "[do loop_count == 0 || loop_count < 5]Do: [%loop_count][/do]";
             $evulator->ParamNoAttrib = true;
+	    $evulator->LeftTag = '[';
+	    $evulator->RightTag = ']';
             $evulator->Parse();
             //Output: Do: 0Do: 1Do: 2Do: 3Do: 4Do: 5
             $result = $evulator->Elements->EvulateValue()->TextContent;
