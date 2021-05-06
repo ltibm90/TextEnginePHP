@@ -4,6 +4,7 @@ class ParFormat extends PropertyBase
 	function __construct($text = "")
 	{
 		$this->Text = $text;
+		$this->Flags = PardecodeFlags::PDF_AllowArrayAccess | PardecodeFlags::PDF_AllowMethodCall | PardecodeFlags::PDF_AllowSubMemberAccess;
 	}
 	private $ptext;
 	function Get_Text()
@@ -17,6 +18,7 @@ class ParFormat extends PropertyBase
 	}
     private $FormatItems;
 	public $SurpressError;
+	public $Flags;
 	public function Apply(&$data = null)
 	{
 		if(empty($this->Text)) return $this->Text;
@@ -39,8 +41,10 @@ class ParFormat extends PropertyBase
 				if($item->ParData == null)
 				{
 					$item->ParData = new ParDecoder($item->ItemText);
+					$item->ParData->OnGetFlags = function() {return $this->Flags;};
 					$item->ParData->Decode();
 					$item->ParData->SurpressError = $this->SurpressError;
+
 				}
 				$cr = $item->ParData->Items->Compute($data);
 				if($cr && isset($cr->result[0]))

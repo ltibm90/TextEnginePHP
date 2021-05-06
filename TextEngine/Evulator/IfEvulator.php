@@ -55,7 +55,9 @@ class IfEvulator  extends  BaseEvulator
 		$result = new TextEvulateResult();
 		if($this->ConditionSuccess($tag))
 		{
+					
 			$elseitem = $tag->GetSubElement('elif', 'else');
+			
 			if($elseitem)
 			{
 				$result->End = $elseitem->Index();

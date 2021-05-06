@@ -50,6 +50,7 @@ class TextEvulator extends PropertyBase
 	public $CustomDataSingle;
 	public $AllowCharMap;
 	public $EvulatorHandler;
+	public $SpecialCharOption;
 	public function &GetHandler()
 	{
 		$handler = null;
@@ -69,6 +70,7 @@ class TextEvulator extends PropertyBase
 		$this->LocalVariables = new ArrayGroup();
 		$this->Elements->ElemName = "#document";
 		$this->LocalVariables->AddArray($this->DefineParameters);
+		$this->SpecialCharOption = SpecialCharType::SCT_AllowedAll;
 		if ($isfile) {
 			$this->Text = file_get_contents( $text);
 		} else {
@@ -102,6 +104,8 @@ class TextEvulator extends PropertyBase
 		$this->TagInfos["set"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
 		$this->TagInfos["unset"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_ConditionalTag;
 		$this->TagInfos["if"]->Flags = TextElementFlags::TEF_NoAttributedTag | TextElementFlags::TEF_ConditionalTag;
+		$this->TagInfos["while"]->Flags = TextElementFlags::TEF_NoAttributedTag;
+		$this->TagInfos["do"]->Flags = TextElementFlags::TEF_NoAttributedTag;
 		
 	}
 	private function InitEvulator()
@@ -123,6 +127,8 @@ class TextEvulator extends PropertyBase
 		$this->EvulatorTypes["include"] = "IncludeEvulator";
 		$this->EvulatorTypes["set"] = "SetEvulator";
 		$this->EvulatorTypes["unset"] = "UnsetEvulator";
+		$this->EvulatorTypes["while"] = "WhileEvulator";
+		$this->EvulatorTypes["do"] = "DoEvulator";
 	}
 	private function InitAmpMaps()
 	{

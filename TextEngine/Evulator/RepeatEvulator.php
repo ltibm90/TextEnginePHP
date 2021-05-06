@@ -18,7 +18,7 @@ class RepeatEvulator extends BaseEvulator
 		for($i = 0; $i < $to; $i++)
 		{
 			//$this->SetVar($varname, $i);
-			$this->SetLocal($varname, $i);
+			$this->SetLocalWR($varname, $i);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
 			if(!$cresult) continue;
 			$result->TextContent .= $cresult->TextContent;

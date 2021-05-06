@@ -17,8 +17,8 @@ class ForeachEvulator extends BaseEvulator
 		$result = new TextEvulateResult();
 		foreach ($inlist as $index => $item) {
 			$this->SetLocal($varname, $item);
-			$this->SetLocal("loop_count", $total);
-			$this->SetLocal("loop_key", $index);
+			$this->SetLocalWR("loop_count", $total);
+			$this->SetLocalWR("loop_key", $index);
 
 			//$this->SetVar($varname, $item);
 			//$this->SetVar('loop_count', $total);

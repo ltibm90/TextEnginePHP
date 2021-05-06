@@ -13,7 +13,7 @@ class TextEvulatorParser
 	/** @param $baseevulator TextEvulator */
 	public function __construct($baseevulator)
 	{
-		$this->Evulator = $baseevulator;
+		$this->Evulator = &$baseevulator;
 	}
 	public function Parse($baseitem, $text)
 	{
@@ -29,7 +29,7 @@ class TextEvulatorParser
 		{
 			$currenttag = &$baseitem;
 		}
-		$currenttag->BaseEvulator =& $this->Evulator;
+		$currenttag->BaseEvulator = $this->Evulator;
 		for ($i = 0; $i < $this->TextLength; $i++) {
 			unset($tag);
 			$tag = $this->ParseTag($i, $currenttag);
@@ -187,7 +187,7 @@ class TextEvulatorParser
 		$inspec = false;
 		$tagElement = new TextElement();
 		$tagElement->Parent = $parent;
-		$tagElement->BaseEvulator=& $this->Evulator;
+		$tagElement->BaseEvulator= $this->Evulator;
 		$istextnode = false;
 		$intag = false;
 		for ($i = $start; $i < $this->TextLength; $i++) {
@@ -316,8 +316,6 @@ class TextEvulatorParser
 		$quotchar = null;
 		$initial =false;
 		$istagattrib = false;
-		$tagattribonly = false;
-		$curFlags = 0;
 		for ($i = $this->pos; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			
@@ -372,7 +370,6 @@ class TextEvulatorParser
 						$tagElement->ElementType = TextElementType::CDATASection;
 						$tagElement->ElemName = "#cdata";
 						$namefound = true;
-						$curFlags = 0;
 						$i += 7;
 						continue;
 					}
@@ -419,10 +416,10 @@ class TextEvulatorParser
 				continue;
 			}
 			if(($tagElement->ElementType == TextElementType::Parameter && $this->Evulator->ParamNoAttrib) ||
-			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagattribonly)
+			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly))
 			)
 			{
-				if(($cur != $this->Evulator->RightTag && $tagElement->ElementType == TextElementType::Parameter) || $cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || ($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0))
+				if(($cur != $this->Evulator->RightTag && $tagElement->ElementType == TextElementType::Parameter) || $cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || $tagElement->HasFlag(TextElementFlags::TEF_DisableLastSlash)))
 				{
 					$current .= $cur;
 					continue;
@@ -450,7 +447,7 @@ class TextEvulatorParser
 						$tagElement->TagAttrib = $current;
 						$istagattrib = false;
 					}
-					else if (!$tagattribonly && !empty($currentName)) {
+					else if (!$tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly) && !empty($currentName)) {
 						$tagElement->ElemAttr->SetAttribute($currentName, $current);
 					}
 					$currentName = '';
@@ -480,18 +477,17 @@ class TextEvulatorParser
 					if (!$namefound && !empty($current)) {
 						$namefound = true;
 						$tagElement->ElemName = $current;
-						$curFlags = $tagElement->GetTagFlags();
 						$current = '';
 					}
 					if ($namefound) {
-						if($next == $this->Evulator->RightTag && ($curFlags & TextElementFlags::TEF_DisableLastSlash) == 0)
+						if($next == $this->Evulator->RightTag && !$tagElement->HasFlag(TextElementFlags::TEF_DisableLastSlash))
 						{
 							$lastslashused = true;
 						}
 					} else {
 						$firstslashused = true;
 					}
-					if(($curFlags & TextElementFlags::TEF_DisableLastSlash) != 0)
+					if($tagElement->HasFlag(TextElementFlags::TEF_DisableLastSlash))
 					{
 						$current .= $cur;
 					}
@@ -516,9 +512,6 @@ class TextEvulatorParser
 						$tagElement->ElemName = $current;
 						$current = '';
 						$istagattrib = true;
-						$curFlags = $tagElement->GetTagFlags();
-						$tagattribonly = ($curFlags & TextElementFlags::TEF_TagAttribonly) != 0;
-						
 						//throw new Exception('Syntax Error');
 						
 					}
@@ -541,7 +534,6 @@ class TextEvulatorParser
 					if (!$namefound) {
 						$tagElement->ElemName = $current;
 						$current = '';
-						$tagattribonly = false;
 					}
 					if($tagElement->NoAttrib)
 					{
@@ -552,10 +544,10 @@ class TextEvulatorParser
 						$tagElement->TagAttrib = $current;
 						$istagattrib = false;
 					}
-					else if (!$tagattribonly && !empty($currentName)) {
+					else if (!$tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly) && !empty($currentName)) {
 						$tagElement->ElemAttr->SetAttribute($currentName, $current);
 
-					} else if (!$tagattribonly && !empty($current)) {
+					} else if (!$tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly) && !empty($current)) {
 						$tagElement->ElemAttr->SetAttribute($current, '');
 					}
 					$tagElement->SlashUsed = $firstslashused;
@@ -579,8 +571,6 @@ class TextEvulatorParser
 					if (!$namefound && !empty($current)) {
 						$namefound = true;
 						$tagElement->ElemName = $current;
-						$curFlags = $tagElement->GetTagFlags();
-						$tagattribonly = ($curFlags & TextElementFlags::TEF_TagAttribonly) != 0;
 						$current = '';
 
 					} else if ($namefound) {
@@ -592,12 +582,12 @@ class TextEvulatorParser
 							$current = '';
 							$istagattrib = false;
 						}
-						else if (!$tagattribonly && !empty($currentName)) {
+						else if (!$tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly) && !empty($currentName)) {
 							$tagElement->ElemAttr->SetAttribute($currentName, $current);
 							$current = '';
 							$currentName = '';
 							$quoted = false;
-						} else if (!$tagattribonly && !empty($current)) {
+						} else if (!$tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly) && !empty($current)) {
 							$tagElement->ElemAttr->SetAttribute($current, '');
 							$current = '';
 							$quoted = false;
@@ -625,10 +615,15 @@ class TextEvulatorParser
 				$text .= $cur;
 				continue;
 			}
-			if ($cur == "\\") {
+			if ($cur == "\\") 
+			{
+				if ($this->Evulator->SpecialCharOption == SpecialCharType::SCT_AllowedAll ||  ($this->Evulator->SpecialCharOption == SpecialCharType::SCT_AllowedClosedTagOnly && $next == $this->Evulator->RightTag))
+				{
+					$inspec = true;
+					continue;
+				}
 				$inspec = true;
 				continue;
-
 			}
 			if($this->Evulator->AllowCharMap && $cur != $this->Evulator->LeftTag && $cur != $this->Evulator->RightTag && isset($this->Evulator->CharMap[$cur]))
 			{

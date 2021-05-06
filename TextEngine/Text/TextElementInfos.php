@@ -7,7 +7,7 @@ class TextElementInfos implements ArrayAccess
 	public function &offsetGet($offset) 
 	{
 		$info = null;
-		if($offset == "#text") return $info; 
+		if(empty($offset) || $offset == "#text") return $info; 
 		if(isset($this->lastElement) && $this->lastElement->ElementName == mb_strtolower($offset))
 		{
 			return $this->lastElement;

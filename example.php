@@ -123,6 +123,26 @@ class UserInfo
 		return is_array($this->Informations) && count($this->Informations) > 0;
 	}
 }
+class WhileTestClass
+{
+	public $Items;
+	public $Position;
+	function  __construct ()
+	{
+		$this->Items = [];
+		$this->Position = -1;
+
+	}
+	function Next()
+	{
+		return ++$this->Position < count($this->Items);
+	}
+
+    function Get()
+	{
+		return $this->Items[$this->Position];
+	}
+}
 
 function TemplateTest()
 {
@@ -133,12 +153,19 @@ function TemplateTest()
 	$pf->Text = 'ParFormat örneği; Kullanıcı: {%name}, Grup: {%grup}, Random Sayı: {%random()}';
 	echo $pf->Apply($kv);
 
-
-
+	$wtc = new WhileTestClass();
+	$wtc->Items [] = "Item1";
+	$wtc->Items [] = "Item2";
+	$wtc->Items [] = "Item3";
+	$wtc->Items [] = "Item4";
+	$wtc->Items [] = "Item5";
+	$wtc->Items [] = "Item6";
+    echo "ok";
 
 	$globalInfo = new stdClass();
 	$globalInfo->title = "Cyber-Warrior User Info";
 	$globalInfo->footer = "<b>Ana Sayfa</b>";
+	$globalInfo->whileItems = $wtc;
 	$userInfo = new UserInfo();
 	$globalInfo->currentUser = new stdClass();
 	$globalInfo->currentUser->Access = 1;

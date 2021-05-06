@@ -12,7 +12,7 @@ class ForEvulator extends BaseEvulator
 		if($stepAttr != null) $step = $stepAttr->Value;
 		if(!$start)
 		{
-			$start = "0";
+			$start = 0;
 		}
 		if($step === null || $step == 0)
 		{
@@ -53,11 +53,10 @@ class ForEvulator extends BaseEvulator
 		$this->CreateLocals();
 		//$this->StorePreviousValue($varname);
 		$result = new TextEvulateResult();
-	
 		for($i = $start; $i < $to; $i += $step)
 		{
-			$this->SetLocal($varname, $i);
 
+			$this->SetLocalWR($varname, $i);
 			//$this->SetVar($varname, $i);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
 			if(!$cresult) continue;

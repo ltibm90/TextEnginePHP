@@ -42,7 +42,33 @@ class TextElement extends PropertyBase
 	/** @var TextElementAttributes */
 	public $ElemAttr;
 	/** @var TextEvulator */
-	public $BaseEvulator;
+	private $p_baseEvulator;
+	function &Get_BaseEvulator()
+	{
+		return $this->p_baseEvulator;
+	}
+	function Set_BaseEvulator($val)
+	{
+		$this->p_baseEvulator = &$val;
+		$this->_tagInfo = null;
+	}
+	
+	private $_tagInfo;
+	function &Get_TagInfo()
+	{
+		if ($this->BaseEvulator == null) return null;
+		if ($this->_tagInfo == null && $this->ElementType != TextElementType::Parameter)
+		{
+			if ($this->BaseEvulator->TagInfos->HasTagInfo($this->ElemName)) $this->_tagInfo = $this->BaseEvulator->TagInfos[$this->ElemName];
+			else if ($this->BaseEvulator->TagInfos->HasTagInfo("*")) $this->_tagInfo = $this->BaseEvulator->TagInfos["*"];
+		}
+		return $this->_tagInfo;
+	}
+	function Get_TagFlags()
+	{
+		if ($this->TagInfo == null) return TextElementFlags::TEF_NONE;
+		return $this->TagInfo->Flags;
+	}
 	public $Closed;
 	private $value;
 	/** @var TextElement[] */
@@ -151,6 +177,7 @@ class TextElement extends PropertyBase
 
 	public function SetInner($text)
 	{
+		
 		$this->BaseEvulator->Text = $text;
 		$this->SubElements = new TextElements();
 		$this->BaseEvulator->Parse($this);
@@ -344,7 +371,7 @@ class TextElement extends PropertyBase
 				continue;
 			}
 			
-			if (preg_grep( "/$prev->ElemName/i" ,  func_get_args() )) {
+			if (preg_grep( "/^$prev->ElemName\$/i" ,  func_get_args() )) {
 				return $prev;
 			}
 			$prev = $prev->PreviousElement();
@@ -360,7 +387,7 @@ class TextElement extends PropertyBase
 				$next = $next->NextElement();
 				continue;
 			}
-			if (preg_grep( "/$next->ElemName/i" ,  func_get_args() )) {
+			if (preg_grep( "/^$next->ElemName\$/i" ,  func_get_args() )) {
 				return $next;
 			}
 			$next = $next->NextElement();
@@ -389,7 +416,7 @@ class TextElement extends PropertyBase
 
 		for ($i = 0; $i < $this->GetSubElementsCount(); $i++) {
 			$ename = $this->SubElements[$i]->ElemName;
-			if (preg_grep( "/$ename/i" ,  func_get_args() )) {
+			if (preg_grep( "/^$ename\$/i" ,  func_get_args() )) {
 				return $this->SubElements[$i];
 			}
 		}
@@ -849,17 +876,15 @@ class TextElement extends PropertyBase
 	}
 	public function &GetTagInfo()
 	{
-		$info = null;
-		if ($this->BaseEvulator == null) return $info;
-		if ($this->BaseEvulator->TagInfos->HasTagInfo($this->ElemName)) return $this->BaseEvulator->TagInfos[$this->ElemName];
-		if ($this->BaseEvulator->TagInfos->HasTagInfo("*")) return $this->BaseEvulator->TagInfos["*"];
-		return $info;
+		return $this->TagInfo;
 	}
 	public function GetTagFlags()
 	{
-		$info = $this->GetTagInfo();
-		if ($info == null) return TextElementFlags::TEF_NONE;
-		return $info->Flags;
+		return $this->TagFlags;
+	}
+	public function HasFlag($flag)
+	{
+		return ($this->TagFlags & $flag) != 0;
 	}
 	public function SetTextTag($closetag = false)
 	{

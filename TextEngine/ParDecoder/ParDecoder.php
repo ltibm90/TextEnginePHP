@@ -1,20 +1,34 @@
 <?php
 
-class ParDecoder
+class ParDecoder extends PropertyBase
 {
 	public $Text;
 	private $TextLength;
 	private $pos;
 	public $Items;
 	public $SurpressError;
+	public $OnGetFlags;
+	public $OnSetFlags;
 	public function __construct($text)
 	{
 		$this->TextLength = strlen($text);
 		$this->Text = $text;
 		$this->Items = new ParItem();
 		$this->Items->ParName = "(";
+		$this->Items->BaseDecoder = &$this;
+		$this->Flags = PardecodeFlags::PDF_AllowMethodCall | PardecodeFlags::PDF_AllowSubMemberAccess | PardecodeFlags::PDF_AllowArrayAccess;
 	}
-
+	private $p_flags;
+	public function Get_Flags()
+	{
+		if($this->OnGetFlags) return call_user_func_array($this->OnGetFlags, array());
+		return $this->p_flags;
+	}
+	public function Set_Flags($value)
+	{
+		if($this->OnGetFlags && call_user_func_array($this->OnSetFlags, array($value))) return; 
+		$this->p_flags = $value;;
+	}
 	public function Decode()
 	{
 		/** @var ParItem|InnerGroup $parentItem */
@@ -26,7 +40,7 @@ class ParDecoder
 			if ($i - 1 >= 0) {
 				$prev = $this->Text[$i - 1];
 			}
-			if (($prev != ')' && $prev != ']' && $prev != '}' ) && ($cur == '=' || $cur == '>' || $cur == '<' || $cur == '?' || $cur == ':')) {
+			if (false && ($prev != ')' && $prev != ']' && $prev != '}' ) && ($cur == '=' || $cur == '>' || $cur == '<' || $cur == '?' || $cur == ':')) {
 				if ($isopened) {
 					unset($item);
 					$item = new InnerItem();
@@ -156,7 +170,7 @@ class ParDecoder
 						}
 						else
 						{
-							$this->pos = $i - 1;
+							$this->pos = $i;
 						}
 						return $innerItems;
 					}
@@ -178,7 +192,7 @@ class ParDecoder
 						 $valuestr = $inner2->value;
 						 if ($valuestr == "=" ||$valuestr == "<=" || $valuestr == ">=" || $valuestr == "<" || $valuestr == ">" || $valuestr == "!=" || $valuestr == "==")
 							{
-								$this->pos = $i - 1;
+								$this->pos = $i;
 								return $innerItems;
 							}
 

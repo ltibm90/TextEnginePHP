@@ -85,12 +85,12 @@ class IncludeEvulator extends BaseEvulator
       
 			$tempelem = new TextElement();
 			$tempelem->ElemName = '#document';
-			$tempelem->BaseEvulator = &$this->Evulator;
+			$tempelem->BaseEvulator = $this->Evulator;
 		
 
 			$tempelem2 = new TextElement();
 			$tempelem2->ElemName = '#document';
-			$tempelem2->BaseEvulator = &$this->Evulator;		
+			$tempelem2->BaseEvulator = $this->Evulator;		
 			
 			$this->Evulator->ParseText($tempelem2, $content);
 

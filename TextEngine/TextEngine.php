@@ -2,6 +2,7 @@
 if(!defined("TE_PATH_PREFIX")) define("TE_PATH_PREFIX", "");
 if(!defined("TE_CUSTOM_EVULATOR_PATH")) define("TE_CUSTOM_EVULATOR_PATH", "");
 require_once TE_PATH_PREFIX .'Misc/PropertyBase.php';
+require_once TE_PATH_PREFIX .'Misc/SpecialCharType.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttribute.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementAttributes.php';
 require_once TE_PATH_PREFIX . 'Text/TextElementFlags.php';
@@ -15,6 +16,7 @@ require_once TE_PATH_PREFIX .'Misc/Utils.php';
 require_once TE_PATH_PREFIX .'Misc/EvualtorTypes.php';
 require_once TE_PATH_PREFIX .'Misc/SavedMacros.php';
 require_once TE_PATH_PREFIX .'Misc/ArrayGroup.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/PardecodeFlags.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParDecoder.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/Inners.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParItem.php';

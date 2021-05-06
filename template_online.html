@@ -3,7 +3,7 @@
 <div><b>Online Üyeler</b>: {%onlinecount}</div>
 <div>
 	{FOR var='i' to='onlinecount'}
-	{if i>0}, {%i} {/if} {cm onlineuser username='OnlineUsers[i]' }
+	{if i>0}, {/if} <b>{%i+1}</b>: {cm onlineuser username='OnlineUsers[i]' }
 	{/FOR} 
 	
 </div>

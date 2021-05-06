@@ -9,7 +9,7 @@ abstract class BaseEvulator
 	private $localVarsId;
 	public function __construct(&$evulator)
 	{
-		$this->Evulator =& $evulator;
+		$this->Evulator = $evulator;
 	}
 	/** @param $tag TextElement
 	 * @return TextEvulateResult
@@ -97,7 +97,8 @@ abstract class BaseEvulator
 		$pardecoder = null;
 		if($tag->NoAttrib)
 		{
-			if($tag->Value == null) return true;
+			if($tag->Value === null) return true;
+
 			$pardecoder = &$tag->ParData;
 			if($pardecoder == null)
 			{
@@ -146,6 +147,10 @@ abstract class BaseEvulator
 	protected function SetLocal($name, &$value)
 	{
 		$this->localVars[$name] = &$value;
+	}
+	protected function SetLocalWR($name, $value)
+	{
+		$this->localVars[$name] = $value;
 	}
 	protected function &GetLocal($name)
 	{

@@ -26,8 +26,11 @@ class ComputeActions
 		if (is_object($item1) || is_object($item2)) {
 			return null;
 		}
+		if(is_bool($item1)) $item1 = $item1 ? 1 : 0;
+		if(is_bool($item2)) $item2 = $item2 ? 1 : 0;
 		if (($operator == "||" ||  $operator == "or" || $operator == "&&" || $operator == "and") || ((!is_numeric($item1) || !is_numeric($item2)) && ($operator == "&" || $operator == "|") )) {
 			
+
 			$lefstate = !empty($item1);
 			$rightstate = !empty($item2);
 			if ($operator == "||" || $operator == "|" || $operator == "or") {
@@ -48,12 +51,16 @@ class ComputeActions
 			}
 		}
 
+
+
 		switch ($operator) {
 			case '|':
 				return $item1 | $item2;
 			case '&':
 				return $item1 & $item2;
 			case '==':
+
+
 				return $item1 == $item2;
 			case '=':
 				return $item1 == $item2;
