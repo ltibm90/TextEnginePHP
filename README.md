@@ -206,3 +206,52 @@
             //Output: this is text style PHPEvulator: Name=TextEngine<br>Value=1234<br>Custom: 10
             $result = $evulator->Elements->EvulateValue()->TextContent;
 ```
+
+
+## WhileEvulator Usage
+```php
+	class WhileTestClass
+	{
+		public $Items;
+		public $Position;
+		function  __construct ()
+		{
+			$this->Items = [];
+			$this->Position = -1;
+
+		}
+		function Next()
+		{
+			return ++$this->Position < count($this->Items);
+		}
+
+	    	function Get()
+		{
+			return $this->Items[$this->Position];
+		}
+	}
+	$wtc = new WhileTestClass();
+	$wtc->Items [] = "Item1";
+	$wtc->Items [] = "Item2";
+	$wtc->Items [] = "Item3";
+	$wtc->Items [] = "Item4";
+	$wtc->Items [] = "Item5";
+	$wtc->Items [] = "Item6";
+	$evulator = new TextEvulator();
+            $evulator->GlobalParameters = $wtc;
+            $evulator->Text = "[while Next()][%loop_count + 1]: -[%Get()][/while]";
+            $evulator->ParamNoAttrib = true;
+            $evulator->Parse();
+            //Output: 1: -Item12: -Item23: -Item34: -Item45: -Item56: -Item6
+            $result = $evulator->Elements->EvulateValue()->TextContent;
+```
+## DoEvulator Usage
+```csharp
+	$evulator = new TextEvulator();
+            $evulator->Text = "[do loop_count == 0 || loop_count < 5]Do: [%loop_count][/do]";
+            $evulator->ParamNoAttrib = true;
+            $evulator->Parse();
+            //Output: Do: 0Do: 1Do: 2Do: 3Do: 4Do: 5
+            $result = $evulator->Elements->EvulateValue()->TextContent;
+```
+
