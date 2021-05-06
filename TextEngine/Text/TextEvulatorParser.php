@@ -622,8 +622,6 @@ class TextEvulatorParser
 					$inspec = true;
 					continue;
 				}
-				$inspec = true;
-				continue;
 			}
 			if($this->Evulator->AllowCharMap && $cur != $this->Evulator->LeftTag && $cur != $this->Evulator->RightTag && isset($this->Evulator->CharMap[$cur]))
 			{
