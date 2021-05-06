@@ -23,7 +23,9 @@ class ComputeActions
 
 	public static function OperatorResult($item1, $item2, $operator)
 	{
-		if (is_object($item1) || is_object($item2)) {
+		if (is_object($item1) || is_object($item2)) 
+		{
+			if(is_object($item1) && $item2 == -1) return $item1;
 			return null;
 		}
 		if(is_bool($item1)) $item1 = $item1 ? 1 : 0;
