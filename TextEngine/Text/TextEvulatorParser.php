@@ -53,6 +53,7 @@ class TextEvulatorParser
 					if ($prev != null && !$prev->Closed)
 					{
 						$prev->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
+						if($prev->TagInfo && $prev->TagInfo->OnTagClosed) call_user_func_array(array($prev->TagInfo->OnTagClosed), $prev);
 						unset($currenttag);
 						$currenttag = &$this->GetNotClosedPrevTag($prev);
 						$tag->Parent = &$currenttag;
