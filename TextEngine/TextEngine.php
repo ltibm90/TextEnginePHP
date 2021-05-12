@@ -12,6 +12,7 @@ require_once TE_PATH_PREFIX . 'Text/TextEvulator.php';
 require_once TE_PATH_PREFIX . 'Text/TextElements.php';
 require_once TE_PATH_PREFIX .'Text/TextElement.php';
 require_once TE_PATH_PREFIX .'Text/TextEvulatorParser.php';
+require_once TE_PATH_PREFIX .'Text/TextElementClosedType.php';
 require_once TE_PATH_PREFIX .'Misc/Utils.php';
 require_once TE_PATH_PREFIX .'Misc/EvualtorTypes.php';
 require_once TE_PATH_PREFIX .'Misc/SavedMacros.php';

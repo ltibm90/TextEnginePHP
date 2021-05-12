@@ -33,7 +33,7 @@ class TextEvulator extends PropertyBase
 	public $AllowXMLTag = true;
 	public $TrimStartEnd = false;
 	public $TrimMultipleSpaces = true;
-	public $AllowParseCondition = true;
+	public $AllowParseCondition = false;
 	public $ThrowExceptionIFPrevIsNull = true;
 	/** @var array */
 	public $DefineParameters = array();
@@ -93,7 +93,7 @@ class TextEvulator extends PropertyBase
 	private function InitStockTagOptions()
 	{
 		//default flags
-		$this->TagInfos["*"]->Flags = TextElementFlags::TEF_NONE;
+		$this->TagInfos->Default->Flags = TextElementFlags::TEF_NONE;
 		$this->TagInfos["elif"]->Flags = TextElementFlags::TEF_AutoClosedTag | TextElementFlags::TEF_NoAttributedTag;
 		$this->TagInfos["else"]->Flags = TextElementFlags::TEF_AutoClosedTag;
 		$this->TagInfos["return"]->Flags = TextElementFlags::TEF_AutoClosedTag;

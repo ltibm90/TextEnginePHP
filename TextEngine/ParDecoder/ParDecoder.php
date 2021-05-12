@@ -33,43 +33,11 @@ class ParDecoder extends PropertyBase
 	{
 		/** @var ParItem|InnerGroup $parentItem */
 		$parentItem = &$this->Items;
-		$isopened = false;
 		for ($i = 0; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			$prev = '\0';
 			if ($i - 1 >= 0) {
 				$prev = $this->Text[$i - 1];
-			}
-			if (false && ($prev != ')' && $prev != ']' && $prev != '}' ) && ($cur == '=' || $cur == '>' || $cur == '<' || $cur == '?' || $cur == ':')) {
-				if ($isopened) {
-					unset($item);
-					$item = new InnerItem();
-					$item->IsOperator = true;
-					if (($prev == '>' && $cur == '=') || ($prev == '<' && $cur == '=') || ($prev == '!' && $cur == '=') || ($prev == '=' && $cur == '>')) {
-						$item->Value = $prev + $cur;
-					} else {
-						$item->Value = $cur;
-					}
-					$tempPar = &$parentItem->Parent;
-					unset($parentItem);
-					$parentItem = &$tempPar;
-					unset($tempPar);
-					$isopened = false;
-					$parentItem->innerItems[] = $item;
-					$i--;
-
-				} else {
-					unset($item);
-					$item = new ParItem();
-					$item->Parent = &$parentItem;
-					$item->ParName = "(";
-					$parentItem->innerItems[] = $item;
-					unset($parentItem);
-					$parentItem = &$item;
-					$item->BaseDecoder = &$this;
-					$isopened = true;
-				}
-				continue;
 			}
 			if ($cur == '(' || $cur == '[' || $cur == '{') {
 				unset($item);
@@ -82,11 +50,6 @@ class ParDecoder extends PropertyBase
 				$parentItem = &$item;
 				continue;
 			} else if ($cur == ')' || $cur == ']' || $cur == '}') {
-				if($isopened)
-				{
-					//$isopened = false;
-				}
-				
 				$tempPar = &$parentItem->Parent;
 				unset($parentItem);
 				$parentItem = &$tempPar;
@@ -102,7 +65,7 @@ class ParDecoder extends PropertyBase
 				}
 				continue;
 			}
-			$result = $this->DecodeText($i, $isopened);
+			$result = $this->DecodeText($i);
 			$totals = count($result);
 			for($i = 0; $i < $totals; $i++)
 			{

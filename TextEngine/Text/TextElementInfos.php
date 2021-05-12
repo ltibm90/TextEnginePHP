@@ -4,6 +4,10 @@ class TextElementInfos implements ArrayAccess
     private $inner = array();
 	private $lastElement;
 	public $AutoInitialize = true;
+	public $Default;
+	function __construct() {
+		$this->Default = new TextElementInfo();
+	}
 	public function &offsetGet($offset) 
 	{
 		$info = null;

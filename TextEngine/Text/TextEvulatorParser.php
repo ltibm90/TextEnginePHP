@@ -15,6 +15,11 @@ class TextEvulatorParser
 	{
 		$this->Evulator = &$baseevulator;
 	}
+	private function OnTagOpened(&$element)
+	{
+		if($element->TagInfo && $element->TagInfo->OnTagOpened) call_user_func_array(array($element->TagInfo->OnTagOpened), $element);
+		
+	}
 	public function Parse($baseitem, $text)
 	{
 		$this->Text = $text;
@@ -38,19 +43,46 @@ class TextEvulatorParser
 				$i = $this->pos;
 				continue;
 			}
+
 			if (!$tag->SlashUsed) {
+				$this->OnTagOpened($tag);
+				if ($tag->HasFlag(TextElementFlags::TEF_AutoCloseIfSameTagFound))
+				{
+					unset($prev);
+					$prev = &$this->GetNotClosedPrevTagByName($tag, $tag->ElemName);
+					if ($prev != null && !$prev->Closed)
+					{
+						$prev->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
+						unset($currenttag);
+						$currenttag = &$this->GetNotClosedPrevTag($prev);
+						$tag->Parent = &$currenttag;
+						if ($currenttag == null && $this->Evulator->ThrowExceptionIFPrevIsNull && !$this->Evulator->SurpressError)
+						{
+							$this->Evulator->IsParseMode = false;
+							throw new Exception("Syntax Error");
+						}
+						else if($currenttag == null)
+						{
+							continue;
+						}
+					}
+				}
 				$currenttag->AddElement($tag);
 				if ($tag->DirectClosed)
 				{
+				
+					if($tag->TagInfo && $tag->TagInfo->OnTagClosed) call_user_func_array(array($tag->TagInfo->OnTagClosed), $tag);
 					$this->Evulator->OnTagClosed($tag);
 				}
 			}
 
 			if ($tag->SlashUsed) {
-				$prevtag = $this->GetNotClosedPrevTag($tag);
+				unset($prevtag);
+				$prevtag = &$this->GetNotClosedPrevTag($tag);
 				//$alltags = $this->GetNotClosedPrevTagUntil($tag, $tag->elemName);
 				$total = 0;
 				/** @var TextElement $baseitem */
+				unset($previtem);
 				$previtem = null;
 				while ($prevtag != null) {
 
@@ -61,18 +93,26 @@ class TextEvulatorParser
 						$elem->ElemAttr = $prevtag->ElemAttr;
 						$elem->Autoadded = true;
 
-						$prevtag->Closed = true;
-						if ($previtem != null) {
-							$previtem->Parent = &$elem;
-							$elem->AddElement($previtem);
-						}
-						else
+						$prevtag->CloseState = TextElementClosedType::TECT_CLOSED;
+						if($prevtag->TagInfo && $prevtag->TagInfo->OnTagClosed) call_user_func_array(array($prevtag->TagInfo->OnTagClosed), $prevtag);
+						$allowautocreation = !$elem->HasFlag(TextElementFlags::TEF_PreventAutoCreation) && ($elem->TagInfo->OnAutoCreating == null || $elem->TagInfo->OnAutoCreating($elem));
+						if($allowautocreation)
 						{
-							unset($currenttag);
-							$currenttag = &$elem;
+							
+							if ($previtem != null) 
+							{
+								$previtem->Parent = &$elem;
+								$elem->AddElement($previtem);
+							}
+							else
+							{
+								unset($currenttag);
+								$currenttag = &$elem;
+							}
+							unset($previtem);
+							$previtem = &$elem;
 						}
-						unset($previtem);
-						$previtem = &$elem;
+	
 
 					} else {
 						if($prevtag->ElemName != $tag->ElemName)
@@ -89,10 +129,11 @@ class TextEvulatorParser
 							$currenttag = &$prevtag->Parent;
 						}
 
-						$prevtag->Closed = true;
+						$prevtag->CloseState = TextElementClosedType::TECT_CLOSED;
 						break;
 					}
-					$prevtag = $this->GetNotClosedPrevTag($prevtag);
+					unset($prevtag);
+					$prevtag = &$this->GetNotClosedPrevTag($prevtag);
 
 
 				}
@@ -113,10 +154,23 @@ class TextEvulatorParser
 		$this->noparse_tag = "";
 		$this->Evulator->IsParseMode = false;
 	}
-	private function GetNotClosedPrevTagUntil($tag, $name)
+	private function &GetNotClosedPrevTagByName(&$tag, $name)
+	{
+		$stag = &$this->GetNotClosedPrevTag($tag);
+		while ($stag != null)
+		{
+			if ($stag->ElemName == name) return $stag;
+			unset($stag);
+			$stag = &$this->GetNotClosedPrevTag($stag);
+		}
+		$var_v = null;
+		return $var_v ;
+	}
+	private function GetNotClosedPrevTagsUntil($tag, $name)
 	{
 		$array = array();
-		$stag = $this->GetNotClosedPrevTag($tag);
+		unset($stag);
+		$stag = &$this->GetNotClosedPrevTag($tag);
 		while ($stag != null) {
 
 			if ($stag->ElemName == $name) {
@@ -124,37 +178,42 @@ class TextEvulatorParser
 				break;
 			}
 			$array[] = $stag;
-			$stag = $this->GetNotClosedPrevTag($stag);
+			unset($stag);
+			$stag = &$this->GetNotClosedPrevTag($stag);
 		}
 		return $array;
 	}
 
-	private function GetNotClosedPrevTag($tag)
+	private function &GetNotClosedPrevTag($tag)
 	{
 		/** @var  $parent TextElement */
-		$parent = $tag->Parent;
+		unset($parent);
+		$parent = &$tag->Parent;
 		while ($parent != null) {
 			if ($parent->Closed || $parent->ElemName == "#document") {
 				return null;
 			}
 			return $parent;
 		}
-
-		return null;
+		$var_v = null;
+		return var_v;
 	}
 
-	private function GetNotClosedTag($tag, $name)
+	private function &GetNotClosedTag($tag, $name)
 	{
-		$parent = $tag->Parent;
+		unset($parent);
+		$parent = &$tag->Parent;
 		while ($parent != null) {
 			if ($parent->Closed) return null;
 			if($parent->NameEquals($name))
 			{
 				return $parent;
 			}
-			$parent = $parent->Parent;
+			unset($parent);
+			$parent = &$parent->Parent;
 		}
-		return null;
+		$var_v = null;
+		return var_v;
 	}
 	private function DecodeAmp($start, $decodedirect = true)
 	{
@@ -186,8 +245,8 @@ class TextEvulatorParser
 	{
 		$inspec = false;
 		$tagElement = new TextElement();
-		$tagElement->Parent = $parent;
-		$tagElement->BaseEvulator= $this->Evulator;
+		$tagElement->Parent = &$parent;
+		$tagElement->BaseEvulator = $this->Evulator;
 		$istextnode = false;
 		$intag = false;
 		for ($i = $start; $i < $this->TextLength; $i++) {
@@ -201,6 +260,7 @@ class TextEvulatorParser
 				$cur = $this->Text[$i];
 				if (!$inspec) {
 					if ($cur == $this->Evulator->LeftTag) {
+
 						if ($intag) {
 							if($this->Evulator->SurpressError)
 							{
@@ -233,7 +293,7 @@ class TextEvulatorParser
 								throw new Exception("Syntax Error");
 							}
 						}
-						$tagElement->AutoClosed = true;
+						$tagElement->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
 						$tagElement->Value = $ampcode;
 						return tagElement;
 					}
@@ -353,15 +413,13 @@ class TextEvulatorParser
 			}
 			if ($this->Evulator->AllowXMLTag && $cur == '?' && !$namefound && strlen($current) == 0)
 			{
-				$tagElement->Closed = true;
-				$tagElement->AutoClosed = true;
+				$tagElement->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
 				$tagElement->ElementType = TextElementType::XMLTag;
 				continue;
 			}
 			if ($this->Evulator->SupportExclamationTag && $cur == '!' && !$namefound && strlen($current) == 0)
 			{
-				$tagElement->Closed = true;
-				$tagElement->AutoClosed = true;
+				$tagElement->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
 				if ($i + 8 < $this->TextLength)
 				{
 					$mtn = substr($this->Text, $i, 8);
@@ -390,7 +448,7 @@ class TextEvulatorParser
 			{
 				$tagElement->IsSummary = true;
 				$tagElement->ElemName = '#summary';
-				$tagElement->Closed = true;
+				$tagElement->CloseState = TextElementClosedType::TECT_CLOSED;
 				$tagElement->ElementType = TextElementType::CommentNode;
 				$i += 2;
 				continue;
@@ -470,7 +528,7 @@ class TextEvulatorParser
 				{
 					$tagElement->IsParam = true;
 					$tagElement->ElementType = TextElementType::Parameter;
-					$tagElement->Closed = true;
+					$tagElement->CloseState = TextElementClosedType::TECT_CLOSED;
 					continue;
 				}
 				if ($cur == '/') {
@@ -552,15 +610,13 @@ class TextEvulatorParser
 					}
 					$tagElement->SlashUsed = $firstslashused;
 					if ($lastslashused) {
-						$tagElement->DirectClosed = true;
-						$tagElement->Closed = true;
+						$tagElement->CloseState = TextElementClosedType::TECT_DIRECTCLOSED;
 					}
 					$elname = mb_strtolower($tagElement->ElemName);
 					
 					if (($this->Evulator->TagInfos->GetElementFlags($elname) & TextElementFlags::TEF_AutoClosedTag) != 0)
 					{
-						$tagElement->Closed = true;
-						$tagElement->AutoClosed = true;
+						$tagElement->CloseState = TextElementClosedType::TECT_AUTOCLOSED;
 					}
 					$this->pos = $i;
 					return;

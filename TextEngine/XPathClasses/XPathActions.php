@@ -91,14 +91,10 @@ class XPathActions
 			$result = false;
             if ($issecondary)
             {
-				
-				
                 $result = self::XExpressionSuccess($items[$i], $expressions, $items, $total, $totalcount);
-
             }
             else
             {
-			
                 $result = self::XExpressionSuccess($items[$i], $expressions);
             }
             if (!$result)
@@ -284,6 +280,7 @@ class XPathActions
                         {
 
 							$s = substr($expItem->GetValue(), 1);
+
                             if (($nextExp == null || !$nextExp->IsOperator()) && ($sender == null || !$sender->IsSubItem() || $sender->ParChar != '('))
                             {
 
@@ -295,7 +292,6 @@ class XPathActions
                             }
 					
                             if ($expvalue == null) $expvalue = false;
-						
                         }
                         else
                         {
@@ -341,6 +337,8 @@ class XPathActions
                 }
                 if (($xoperator->GetValue() != "+" && $xoperator->GetValue() != "-") || $nextop == null || in_array($nextop, XPathExpression::$priotirystop))
                 {
+					$old = $curvalue;
+				
                     $curvalue = \ComputeActions::OperatorResult($curvalue, $expvalue, $xoperator->GetValue());
                 }
                 else

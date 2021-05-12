@@ -60,7 +60,7 @@ class TextElement extends PropertyBase
 		if ($this->_tagInfo == null && $this->ElementType != TextElementType::Parameter)
 		{
 			if ($this->BaseEvulator->TagInfos->HasTagInfo($this->ElemName)) $this->_tagInfo = $this->BaseEvulator->TagInfos[$this->ElemName];
-			else if ($this->BaseEvulator->TagInfos->HasTagInfo("*")) $this->_tagInfo = $this->BaseEvulator->TagInfos["*"];
+			else if ($this->BaseEvulator->TagInfos->Default) $this->_tagInfo = $this->BaseEvulator->TagInfos->Default;
 		}
 		return $this->_tagInfo;
 	}
@@ -69,7 +69,23 @@ class TextElement extends PropertyBase
 		if ($this->TagInfo == null) return TextElementFlags::TEF_NONE;
 		return $this->TagInfo->Flags;
 	}
-	public $Closed;
+	public function Get_Closed()
+	{
+		return $this->CloseState > TextElementClosedType::TECT_OPEN;
+	}
+	private $closeState = TextElementClosedType::TECT_OPEN;
+	public function Get_CloseState()
+	{
+		return $this->closeState;
+	}
+	public function Set_CloseState($value)
+	{
+		$this->closeState = $value;
+		if($this->BaseEvulator != null && $value > TextElementClosedType::TECT_OPEN)
+		{
+			$this->BaseEvulator->OnTagClosed($this);
+		}
+	}
 	private $value;
 	/** @var TextElement[] */
 	public $SubElements;
@@ -82,13 +98,19 @@ class TextElement extends PropertyBase
 	/** @var TextElement */
 	public $Parent;
 	/** @var bool */
-	public $DirectClosed;
+	public function Get_DirectClosed()
+	{
+		return $this->CloseState == TextElementClosedType::TECT_DIRECTCLOSED;
+	}
 	public $AutoAdded;
 	public $IsParam = false;
 	public $IsSummary = false;
 	/** @var string */
 	public $AliasName;
-	public $AutoClosed;
+	public function Get_AutoClosed()
+	{
+		return $this>CloseState == TextElementClosedType::TECT_AUTOCLOSED;
+	}
 	public $NoAttrib;
 	/** @var int */
 	public $Index_old;
@@ -722,7 +744,7 @@ class TextElement extends PropertyBase
 				$exp = &$block->XPathExpressions[$i];
 			
 				$foundedElems = \TextEngine\XPathActions::Eliminate($foundedElems, $exp);
-	
+				
 				if ($foundedElems->GetCount() == 0)
 				{
 					break;
@@ -763,6 +785,7 @@ class TextElement extends PropertyBase
 				else
 				{
 					$elements->AddRange($this->FindByXPathPar($curblocks, $senderitems));
+					
 				}
 			}
 			else
@@ -770,6 +793,7 @@ class TextElement extends PropertyBase
 				if ($curblocks->IsBlocks())
 				{
 					$elements = $this->FindByXPathBlockList($curblocks);
+					
 				}
 				else
 				{
@@ -814,6 +838,7 @@ class TextElement extends PropertyBase
 			if ($i == 0 && $senderlist == null)
 			{
 				$elements = $this->FindByXPathBlock($xblock);
+				
 			
 			}
 			else
@@ -890,7 +915,8 @@ class TextElement extends PropertyBase
 	{
 		$this->ElemName = "#text";
 		$this->ElementType = TextElementType::TextNode;
-		if($closetag) $this->Closed = true;
+		if($closetag) $this->CloseState = TextElementClosedType::TECT_CLOSED;
+
 	}
 }
 class TextEvulateResult

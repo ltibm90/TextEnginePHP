@@ -17,4 +17,6 @@ abstract class TextElementFlags
         /// İşaretlenen tagın içeriğini ayrıştırmaz.
         /// </summary>
 	const TEF_NoParse  = 32;
+	const TEF_AutoCloseIfSameTagFound = 64;
+	const TEF_PreventAutoCreation = 256;
 }

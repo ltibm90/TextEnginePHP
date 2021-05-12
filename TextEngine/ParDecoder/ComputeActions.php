@@ -28,8 +28,16 @@ class ComputeActions
 			if(is_object($item1) && $item2 == -1) return $item1;
 			return null;
 		}
-		if(is_bool($item1)) $item1 = $item1 ? 1 : 0;
-		if(is_bool($item2)) $item2 = $item2 ? 1 : 0;
+		if(is_bool($item1)) $item1 = $item1 ? "1" : "";
+		if(is_bool($item2)) $item2 = $item2 ? "1" : "";
+		if($item1 === "" && $item2 === 0)
+		{
+			$item2 = "0";
+		}
+		else if($item2 === "" && $item1 === 0)
+		{
+			$item1 == "0";
+		}
 		if (($operator == "||" ||  $operator == "or" || $operator == "&&" || $operator == "and") || ((!is_numeric($item1) || !is_numeric($item2)) && ($operator == "&" || $operator == "|") )) {
 			
 
