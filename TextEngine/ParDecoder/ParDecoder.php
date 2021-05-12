@@ -35,10 +35,6 @@ class ParDecoder extends PropertyBase
 		$parentItem = &$this->Items;
 		for ($i = 0; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
-			$prev = '\0';
-			if ($i - 1 >= 0) {
-				$prev = $this->Text[$i - 1];
-			}
 			if ($cur == '(' || $cur == '[' || $cur == '{') {
 				unset($item);
 				$item = new ParItem();
