@@ -1,7 +1,15 @@
 <?php
 class TextEvulator extends PropertyBase
 {
-	public $SurpressError;
+	private $p_SurpressError;
+	public function Get_SurpressError()
+	{
+		return $this->p_SurpressError;
+	}
+	public function Set_SurpressError($value)
+	{
+		$this->ParAttributes->SurpressError = $value;
+	}
 	private $text;
 	public function Get_Text()
 	{
@@ -51,6 +59,8 @@ class TextEvulator extends PropertyBase
 	public $AllowCharMap;
 	public $EvulatorHandler;
 	public $SpecialCharOption;
+	public $IntertwinedBracketsState;
+	public $ParAttributes;
 	public function &GetHandler()
 	{
 		$handler = null;
@@ -61,8 +71,16 @@ class TextEvulator extends PropertyBase
 		}
 		return $handler;
 	}
+	public function ApplyCommandLineByLine()
+	{
+		$this->EvulatorTypes->Text = "TextTagCommandEvulator";
+		$this->EvulatorTypes->Param = null;
+		$this->ParAttributes->Flags |= PardecodeFlags::PDF_AllowAssigment;
+	}
 	public function __construct($text = null, $isfile = false)
 	{
+		$this->ParAttributes = new ParDecodeAttributes();
+		$this->IntertwinedBracketsState = IntertwinedBracketsStateType::IBST_ALLOW_NOATTRIBUTED_AND_PARAM;
 		$this->TagInfos = new TextElementInfos();
 		$this->EvulatorTypes = new EvulatorTypesClass();
 		$this->SavedMacrosList = new SavedMacros();
@@ -177,6 +195,6 @@ class TextEvulator extends PropertyBase
 	public function EvulateValue(&$vars = null, $autoparse = true)
 	{
 		if ($autoparse && $this->NeedParse) $this->Parse();
-		return this.Elements.EvulateValue(0, 0, $vars);
+		return $this->Elements->EvulateValue(0, 0, $vars);
 	}
 }

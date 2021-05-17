@@ -151,6 +151,15 @@ class TextElement extends PropertyBase
 		}
 		return -1;
 	}
+	public function Get_AllowIntertwinedPar()
+	{
+		$state = $this->BaseEvulator->IntertwinedBracketsState;
+		$allowed = $state == IntertwinedBracketsStateType::IBST_ALLOW_ALWAYS;
+		$allowed = $allowed || ($this->NoAttrib && ($state == IntertwinedBracketsStateType::IBST_ALLOW_NOATTRIBUTED_AND_PARAM || $state == IntertwinedBracketsStateType::IBST_ALLOW_NOATTRIBUTED_ONLY));
+		$allowed = $allowed || ($this->ElementType == TextElementType::Parameter && ($state == IntertwinedBracketsStateType::IBST_ALLOW_PARAM_ONLY || $state == IntertwinedBracketsStateType::IBST_ALLOW_NOATTRIBUTED_AND_PARAM));
+		return $allowed;
+	}
+	
 	/** @param $element TextElement */
 	public function AddElement(&$element)
 	{
@@ -917,6 +926,17 @@ class TextElement extends PropertyBase
 		$this->ElementType = TextElementType::TextNode;
 		if($closetag) $this->CloseState = TextElementClosedType::TECT_CLOSED;
 
+	}
+	public function &GetParentByName($name)
+	{
+		$parent = &$this->Parent;
+		while ($parent != null)
+		{
+			if ($parent->NameEquals($name)) return $parent;
+			unset($parent);
+			$parent = &$parent->Parent;
+		}
+		return null;
 	}
 }
 class TextEvulateResult

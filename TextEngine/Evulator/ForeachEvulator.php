@@ -9,7 +9,7 @@ class ForeachEvulator extends BaseEvulator
 			return null;
 		}
 		
-		$inlist = $this->EvulateAttribute($tag->ElemAttr["in"]);
+		$inlist = $this->EvulateAttribute($tag->ElemAttr["in"], $vars);
 		if(!$inlist || !is_array($inlist)) return null;
 		//$this->StorePreviousValue($varname);
 		$this->CreateLocals();

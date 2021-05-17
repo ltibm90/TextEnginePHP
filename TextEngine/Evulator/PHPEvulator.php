@@ -5,7 +5,7 @@ class PHPEvulator extends BaseEvulator
 	{
 		$result = new TextEvulateResult();
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
-		$cr = $this->ConditionSuccess($tag, 'if');
+		$cr = $this->ConditionSuccess($tag, 'if', $vars);
 		if(!$cr) return $result;
 		$istext = $tag->ElemAttr->GetAttribute("@text", "0");
 		$inner = $tag->InnerText();

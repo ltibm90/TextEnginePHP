@@ -51,6 +51,7 @@ function str_endswith($string, $search)
 }
 function array_value_exists($value, $array, $ignorecase = false)
 {
+	if(!is_array($array)) return false;
 	$nval = $value;
 	if($ignorecase)
 	{

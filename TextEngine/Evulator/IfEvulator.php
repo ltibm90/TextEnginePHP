@@ -12,7 +12,7 @@ class IfEvulator  extends  BaseEvulator
 	public function Render_ParseMode(&$tag, &$vars)
 	{
 		$result = new TextEvulateResult();
-		$conditionok = $this->ConditionSuccess($tag);
+		$conditionok = $this->ConditionSuccess($tag, '*', $vars);
 		$sil = false;
 		for ($i = 0; $i < $tag->GetSubElementsCount(); $i++)
 		{
@@ -27,7 +27,7 @@ class IfEvulator  extends  BaseEvulator
 					}
 					else if (mb_strtolower($sub.ElemName) == "elif")
 					{
-						$conditionok = $this.ConditionSuccess(sub);
+						$conditionok = $this.ConditionSuccess(sub, '*', $vars);
 					}
 				}
 				array_splice($tag->SubElements, $i, 1);
@@ -53,7 +53,7 @@ class IfEvulator  extends  BaseEvulator
 	public function RenderDefault(&$tag, &$vars)
 	{
 		$result = new TextEvulateResult();
-		if($this->ConditionSuccess($tag))
+		if($this->ConditionSuccess($tag, '*', $vars))
 		{
 					
 			$elseitem = $tag->GetSubElement('elif', 'else');
@@ -79,7 +79,7 @@ class IfEvulator  extends  BaseEvulator
 				else
 				{
 
-					if($this->ConditionSuccess($elseitem))
+					if($this->ConditionSuccess($elseitem, '*', $vars))
 					{
 						$result->Start = $elseitem->Index() + 1;
 						$nextelse = $elseitem->NextElementWN('elif', 'else');

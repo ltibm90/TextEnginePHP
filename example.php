@@ -144,6 +144,7 @@ class WhileTestClass
 	}
 }
 
+
 function TemplateTest()
 {
 	$pf = new ParFormat();
@@ -182,6 +183,63 @@ function TemplateTest()
 	//$te->RightTag = ']';
 	$te->Parse();
 	print_r($te->Elements->EvulateValue()->TextContent);
+	
+	
+
+	echo "<br><br><b>Örnek Atama İşlemi</b></br>";
+	echo "Başlangıçtaki değeri";
+	$tac = new TestAssignClass();
+	echo "<pre>";
+	print_r($tac);
+	echo "</pre>";
+	$pdText = "{%Prop1 = 1} \r\n{%Prop2 = Prop1 + 4}\r\n{%Prop4[0] = 'item changed'}\r\n{%Prop3 = [1, 2, 3, 'named' => 4]}\r\n{%Prop5 = {item: 'value1', item2: 'value2', item3: 5}}\r\n{%Prop5.item3 += 10}";
+	$pr = ParFormat::FormatEx($pdText, $tac, function($attr) {
+		$attr->Flags |= PardecodeFlags::PDF_AllowAssigment;
+	});
+	echo "<br><br><b>ParFormat İle Girilen Metin </b></br>";
+	echo "<pre>$pdText</pre>";
+	echo "<br><br><b>Atama İşleminden Sonraki Değer </b></br>";
+	echo "<pre>";
+	print_r($tac);
+	echo "</pre><br><br>";
+	
+	echo "<br>TextEvulator satır satır komut işlemi ile kullanılarak yapılan bir örnek";
+	echo "Kod: <pre>";
+	echo '$tac2 = new TestAssignClass();
+	$tac2->Prop1 = 1;
+	$tac2->Prop2 = 2;
+	$tac2->Prop3 = 3;<br><br>';
+	echo '$te = new TextEvulator("Prop1 = Prop2 + 1\r\nProp2 = Prop3 + 1\r\nProp3 = Prop1 + Prop2");
+	$te->GlobalParameters = &$tac2;
+	$te->ApplyCommandLineByLine();
+	$res = $te->EvulateValue();';
+	echo "</pre>";
+	
+	echo '<pre>print_r($tac2);</pre><br><b>Sonuç</b>';
+	
+	$tac2 = new TestAssignClass();
+	$tac2->Prop1 = 1;
+	$tac2->Prop2 = 2;
+	$tac2->Prop3 = 3;
+    $te = new TextEvulator("Prop1 = Prop2 + 1\r\nProp2 = Prop3 + 1\r\nProp3 = Prop1 + Prop2");
+	$te->GlobalParameters = &$tac2;
+	$te->ApplyCommandLineByLine();
+	$res = $te->EvulateValue();
+	echo "<pre>";
+	print_r($tac2);
+	echo "</pre>";
+	
+	
+	
+
+}
+class TestAssignClass
+{
+	public $Prop1;
+	public $Prop2;
+	public $Prop3;
+	public $Prop4 = array("item", "item2");
+	public $Prop5;
 }
 TemplateTest();
 

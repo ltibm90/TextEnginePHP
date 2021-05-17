@@ -4,7 +4,7 @@ class SwitchEvulator extends BaseEvulator
 	public function Render(&$tag, &$vars)
 	{
 		$result = new TextEvulateResult();
-		$value = $this->EvulateAttribute($tag->ElemAttr['c']);
+		$value = $this->EvulateAttribute($tag->ElemAttr['c'], $vars);
 		$default = null;
 		$active = null;
 	

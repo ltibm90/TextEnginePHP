@@ -18,7 +18,7 @@ class IncludeEvulator extends BaseEvulator
 	}
 	public function Render_Parse(&$tag, &$vars)
 	{
-		$loc = $this->GetLastDir() . $this->EvulateAttribute($tag->ElemAttr['name']);
+		$loc = $this->GetLastDir() . $this->EvulateAttribute($tag->ElemAttr['name'], $vars);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
 		$dirname = dirname($loc);
 		$this->SetLocal("_DIR_", $dirname);
@@ -60,7 +60,7 @@ class IncludeEvulator extends BaseEvulator
 	}
  	public function Render_Default(&$tag, &$vars)
 	{
-		$loc = $this->GetLastDir() .  $this->EvulateAttribute($tag->ElemAttr['name']);
+		$loc = $this->GetLastDir() .  $this->EvulateAttribute($tag->ElemAttr['name'], $vars);
 		if(!$this->ConditionSuccess($tag, "if") || !file_exists($loc)) return null;
 		$dirname = dirname($loc);
 		$this->SetLocal("_DIR_", $dirname);

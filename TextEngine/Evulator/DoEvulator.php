@@ -24,11 +24,7 @@ class DoEvulator extends BaseEvulator
 			{
 				break;
 			}
-			if($loop_count > 10)
-			{
-				 break;
-			}
-		} while ($this->ConditionSuccess($tag));
+		} while ($this->ConditionSuccess($tag, '*', $vars));
 		$this->DestroyLocals();
 		return $result;
 	}

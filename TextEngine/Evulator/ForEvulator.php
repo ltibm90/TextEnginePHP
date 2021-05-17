@@ -27,25 +27,23 @@ class ForEvulator extends BaseEvulator
 		{
 			if($startAttr->ParData == null)
 			{
-				$startAttr->ParData = new ParDecode($start);
-				$startAttr->ParData->Decode();
+				$startAttr->ParData = $this->CreatePardecode($start);
 			}
-			$start = $this->EvulatePar($startAttr);
+			$start = $this->EvulatePar($startAttr, $vars);
 		}
 		if($stepAttr != null)
 		{
 			if($stepAttr->ParData == null)
 			{
-				$stepAttr->ParData = new ParDecode($step);
-				$stepAttr->ParData->Decode();
+				$stepAttr->ParData = $this->CreatePardecode($step);
 			}
-			$step = $this->EvulatePar($stepAttr);
+			$step = $this->EvulatePar($stepAttr, $vars);
 		}
 		if($step === null || $step == 0)
 		{
 			$step = 1;
 		}
-		$to = $this->EvulateAttribute($toAttr);
+		$to = $this->EvulateAttribute($toAttr, $vars);
 		if(($start != 0 && !is_numeric($start)) || !is_numeric($step) || !is_numeric($to))
 		{
 			return null;

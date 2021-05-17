@@ -5,10 +5,9 @@ class ParDecoder extends PropertyBase
 	public $Text;
 	private $TextLength;
 	private $pos;
+	private $_attributes;
 	public $Items;
-	public $SurpressError;
-	public $OnGetFlags;
-	public $OnSetFlags;
+	public $OnGetAttributes;
 	public function __construct($text)
 	{
 		$this->TextLength = strlen($text);
@@ -16,18 +15,15 @@ class ParDecoder extends PropertyBase
 		$this->Items = new ParItem();
 		$this->Items->ParName = "(";
 		$this->Items->BaseDecoder = &$this;
-		$this->Flags = PardecodeFlags::PDF_AllowMethodCall | PardecodeFlags::PDF_AllowSubMemberAccess | PardecodeFlags::PDF_AllowArrayAccess;
+		$this->Attributes->Flags = PardecodeFlags::PDF_AllowMethodCall | PardecodeFlags::PDF_AllowSubMemberAccess | PardecodeFlags::PDF_AllowArrayAccess;
 	}
-	private $p_flags;
-	public function Get_Flags()
+	public function &Get_Attributes()
 	{
-		if($this->OnGetFlags) return call_user_func_array($this->OnGetFlags, array());
-		return $this->p_flags;
-	}
-	public function Set_Flags($value)
-	{
-		if($this->OnGetFlags && call_user_func_array($this->OnSetFlags, array($value))) return; 
-		$this->p_flags = $value;;
+		$attribs = null;
+		if($this->OnGetAttributes) $attribs = call_user_func_array($this->OnGetAttributes, array());
+		if ($attribs != null) return $attribs;
+		if ($this->_attributes == null) $this->_attributes = new ParDecodeAttributes();
+		return $this->_attributes;
 	}
 	public function Decode()
 	{
@@ -51,7 +47,7 @@ class ParDecoder extends PropertyBase
 				$parentItem = &$tempPar;
 				unset($tempPar);
 				if ($parentItem == null) {
-					if($this->SurpressError)
+					if($this->Attributes->SurpressError)
 					{
 						unset($parentItem);
 						$parentItem = &$this->Items;
@@ -82,8 +78,12 @@ class ParDecoder extends PropertyBase
 		for ($i = $start; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			$next = "\0";
+			$next2 = "\0";
 			if ($i + 1 < $this->TextLength) {
 				$next = $this->Text[$i + 1];
+			}
+			if ($i + 2 < $this->TextLength) {
+				$next2 = $this->Text[$i + 2];
 			}
 			if ($inspec) {
 				$value .= $cur;
@@ -136,8 +136,17 @@ class ParDecoder extends PropertyBase
 					if ($cur != '(' && $cur != ')' && $cur != "[" && $cur != "]" && $cur != "{" && $cur != "}") {
 						$inner2 = new InnerItem();
 						$inner2->is_operator = true;
-						if (($cur == "=" && $next == ">") || ($cur == "!" && $next == "=") || ($cur == ">" && $next == "=") || ($cur == "<" && $next == "=")) {
-							$inner2->value = $cur . $next;
+						if (($cur == "=" && $next == ">") || ($cur == "!" && $next == "=") || ($cur == ">" && $next == "=") || ($cur == "<" && $next == "=")
+							|| ($cur == "+" && $next == "=") || ($cur == "-" && $next == "=")  || ($cur == "*" && $next == "=")  || ($cur == "/" && $next == "=")
+							|| ($cur == "&" && $next == "=") || ($cur == "|" && $next == "=") || ($cur == "<" && $next == "<") || ($cur == ">" && $next == ">")) {
+							if ($next2 == '=' && (($cur == '<' && $next == '<') || ($cur == '>' && $next == '>')))
+							{
+								$inner2->value = $cur . $next . $next2;
+							}
+							else
+							{
+								$inner2->value = $cur . $next;
+							}
 							$i++;
 						} else if (($cur == "=" || $cur == "&" || $cur == '|') && $cur == $next) {
 							$inner2->value = $cur . $next;
@@ -181,7 +190,12 @@ class ParDecoder extends PropertyBase
 
 		return $innerItems;
 	}
-
+	public function Compute(&$vars = null, &$localvars = null, $autodecode = true)
+	{
+		if ($autodecode && !empty($this->Text) && count($this->Items->InnerItems) == 0) $this->Decode();
+		$secparam = null;
+		return $this->Items->Compute($vars, $secparam , $localvars);
+	}
 	private function inner($current, $quotchar)
 	{
 		$inner = new InnerItem();

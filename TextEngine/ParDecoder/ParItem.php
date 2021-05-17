@@ -1,7 +1,7 @@
 <?php
 class ParItem extends InnerItem
 {
-	public static $globalFunctions = array('count', 'strlen', 'HTML::');
+
 
 	public function __construct()
 	{
@@ -59,6 +59,10 @@ class ParItem extends InnerItem
 		$stopdoubledot = false;
 		$innercount  = 0;
 		$minuscount  = 0;
+		$assigment = "";
+        $lastPropObject = null;
+        $waitAssigmentObject = null;
+        $totalOp = 0;
 		if($this->innerItems && is_array($this->innerItems))
 		{
 			$innercount = count($this->innerItems);
@@ -74,6 +78,7 @@ class ParItem extends InnerItem
 		}
 		for ($i = 0; $i < $innercount; $i++)
 		{
+			unset($currentitemvalue);
 			$currentitemvalue = null;
 			/* @var $current InnerItem */
 			unset($current);
@@ -107,27 +112,33 @@ class ParItem extends InnerItem
 						$prevvalue = $previtem->value;
 
 					}
+					unset($varnew);
                     $varnew = null;
+					$checkglobal = true;
                     if ($lastvalue != null)
 					{
-						$varnew = $lastvalue;
+						$checkglobal = false;
+						$varnew = &$lastvalue;
 					}
 					else
 					{
-						$varnew = $vars;
+						$varnew = &$vars;
 					}
 					
                     if ($prevvalue != "")
 					{
 						if ($current->ParName == "(")
 						{				
-							if($this->BaseDecoder->Flags & PardecodeFlags::PDF_AllowMethodCall)
+							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowMethodCall)
 							{
-								if($this->BaseDecoder && $this->BaseDecoder->SurpressError)
+								unset($iscalled);
+								$iscalled = false;
+								unset($currentitemvalue);
+								if($this->BaseDecoder && $this->BaseDecoder->Attributes->SurpressError)
 								{
 									try 
 									{
-										$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $localvars);	
+										$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $iscalled, $localvars, $this->BaseDecoder, $checkglobal);	
 									} 
 									catch (Exception $e) 
 									{
@@ -136,7 +147,7 @@ class ParItem extends InnerItem
 								}
 								else
 								{
-									$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $localvars);	
+									$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $iscalled, $localvars, $this->BaseDecoder, $checkglobal);	
 								}
 							}
 							else
@@ -148,23 +159,41 @@ class ParItem extends InnerItem
 						}
 						else if($current->ParName == "[")
 						{
-							if($this->BaseDecoder->Flags & PardecodeFlags::PDF_AllowArrayAccess)
+							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowArrayAccess)
 							{
-		
-								$prop = ComputeActions::GetProp($prevvalue, $varnew);
+								unset($lastPropObject);
+								$lastPropObject = ComputeActions::GetProp($prevvalue, $varnew);
+								unset($prop);
+								$prop = &$lastPropObject->Value;
 								if (is_array($prop) || is_string($prop))
 								{
 									
 									$indis = $subresult->result[0];
-									
+									unset($currentitemvalue);
 									if($indis !== null)
 									{
 										 $currentitemvalue = $prop[$indis];
 									}
 									else
 									{
+										
 										$currentitemvalue = null;
 									}
+									if(is_array($prop))
+									{
+										$lastPropObject->PropType = PropType::Indis;
+										$lastPropObject->Indis = $indis;
+										$lastPropObject->PropertyInfo = &$prop; 
+										$lastPropObject->Value = &$currentitemvalue;
+									}
+									else
+									{
+										unset($lastPropObject);
+										$lastPropObject = null;
+									}
+
+
+
 								   
 								}
 								else if (is_object($prop))
@@ -185,15 +214,18 @@ class ParItem extends InnerItem
 					{
 						if($current->ParName == "(")
 						{
-							$currentitemvalue = $subresult->result[0];
+							unset($currentitemvalue);
+							$currentitemvalue = &$subresult->result[0];
 						}
 						else if($current->ParName == "[")
 						{
-							$currentitemvalue = $subresult->result;
+							unset($currentitemvalue);
+							$currentitemvalue = &$subresult->result;
 						}
 						else if($current->ParName == "{")
 						{
-							$currentitemvalue = $subresult->result;
+							unset($currentitemvalue);
+							$currentitemvalue = &$subresult->result;
 						}
 					}
 
@@ -202,6 +234,7 @@ class ParItem extends InnerItem
 				{
 					if(!$current->is_operator && $current->type == InnerItem::TYPE_VARIABLE &&  $next != null && $next->IsParItem())
 					{
+						unset($currentitemvalue);
 						$currentitemvalue = null;
 					}
 					else
@@ -220,6 +253,7 @@ class ParItem extends InnerItem
 
 
                         }
+						unset($currentitemvalue);
 						$currentitemvalue = $current->value;
 
 
@@ -229,22 +263,25 @@ class ParItem extends InnerItem
 						
 						if ($currentitemvalue === null || $currentitemvalue == "null")
 						{
-
+							unset($currentitemvalue);
 							$currentitemvalue = null;
 						}
 						else if ($currentitemvalue == "false")
 						{
+							unset($currentitemvalue);
 							$currentitemvalue = false;
 						}
 						else if ($currentitemvalue== "true")
 						{
+							unset($currentitemvalue);
 							$currentitemvalue = true;
 						}
 						else if (!$this->IsObject())
 						{
-							
-							$currentitemvalue = ComputeActions::GetPropValue($current, $vars, $localvars);
-							
+							unset($lastPropObject);
+							$lastPropObject = ComputeActions::GetPropValue($current, $vars, $localvars);
+							unset($currentitemvalue);
+							$currentitemvalue = &$lastPropObject->Value;
 						}
 				
 					}
@@ -252,12 +289,14 @@ class ParItem extends InnerItem
                 if($unlemused)
 				{
 
+					unset($currentitemvalue);
 					$currentitemvalue = empty($currentitemvalue);
 					$unlemused = false;
 				}		
 
                 if ($current->is_operator)
 				{
+					$totalOp++;
 					if($current->value == "!")
 					{
 						$unlemused = !$unlemused;
@@ -303,7 +342,7 @@ class ParItem extends InnerItem
 						{
 							$waitkey = $lastvalue;
 						}
-
+						unset($lastvalue);
 						$lastvalue = null;
 						unset($xoperator);
 						$xoperator = null;
@@ -312,6 +351,27 @@ class ParItem extends InnerItem
 						continue;
 					}
 					$opstr = $current->value;
+					if ($waitAssigmentObject == null && ($opstr == "=" || $opstr == "+=" || $opstr == "-=" || $opstr == "*=" || $opstr == "/=" || $opstr == "^=" || $opstr == "&=" || $opstr == "|=" || $opstr == "<<=" || $opstr == ">>="))
+					{
+						if ($totalOp <= 1 && ($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowAssigment) != 0)
+						{
+							unset($waitAssigmentObject);
+							$waitAssigmentObject = &$lastPropObject;
+							$assigment = $opstr;
+							unset($xoperator);
+							unset($previtem);
+							$xoperator = null;
+							$previtem = null;
+						}
+						else
+						{
+							unset($xoperator);
+							unset($previtem);
+							$xoperator = null;
+							$previtem = null;
+						}
+						continue;
+					}
                     if ($opstr == "||" || /*$opstr == "|" || */ $opstr == "or" || $opstr == "&&" || /* $opstr == "&" ||*/ $opstr == "and" || $opstr == "?")
 					{
 						if ($waitop2 != "")
@@ -352,6 +412,7 @@ class ParItem extends InnerItem
 									}
 								}
                             }
+							unset($lastvalue);
 							$lastvalue = null;
 							unset($previtem);
 							$previtem = &$current;
@@ -362,7 +423,8 @@ class ParItem extends InnerItem
                         if ($opstr == "||" || /*$opstr == "|" ||*/ $opstr == "or")
 						{
 							if ($state)
-							{				
+							{			
+								unset($lastvalue);
 								$lastvalue = true;
 								/*if ($opstr != "|")
 								{*/
@@ -372,6 +434,7 @@ class ParItem extends InnerItem
 							}
 							else
 							{
+								unset($lastvalue);
 								$lastvalue = false;
 							}
 						}
@@ -388,6 +451,7 @@ class ParItem extends InnerItem
 							}
 							else
 							{
+								unset($lastvalue);
 								$lastvalue = true;
 							}
 						}
@@ -438,7 +502,10 @@ class ParItem extends InnerItem
 								
 								if($currentitemvalue)
 								{
-									$lastvalue = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+									unset($lastPropObject);
+									$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+									unset($lastvalue);
+									$lastvalue = &$lastPropObject->Value;
 								}
 
 							}
@@ -458,6 +525,7 @@ class ParItem extends InnerItem
 									$waititem2 = &$current;
 									$waitvalue2 = $lastvalue;
 								}
+								unset($lastvalue);
 								$lastvalue = null;
 								
 							}
@@ -469,9 +537,13 @@ class ParItem extends InnerItem
 						}
 						if ($xoperator->value == ".")
 						{
-							if($this->BaseDecoder->Flags & PardecodeFlags::PDF_AllowSubMemberAccess)
+							$totalOp--;
+							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowSubMemberAccess)
 							{
-								$lastvalue = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+								unset($lastPropObject);
+								$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+								unset($lastvalue);
+								$lastvalue = &$lastPropObject->Value;
 							}
 							else
 							{
@@ -482,6 +554,7 @@ class ParItem extends InnerItem
 						{
 							if($minuscount % 2 == 1) $currentitemvalue  = ComputeActions::OperatorResult($currentitemvalue , -1, "*");
 							$opresult = ComputeActions::OperatorResult($lastvalue, $currentitemvalue, $xoperator->value);
+							unset($lastvalue);
 							$lastvalue = $opresult;
 							$minuscount = 0;
 						}
@@ -493,7 +566,8 @@ class ParItem extends InnerItem
 								unset($waititem);
 								$waititem = &$current;
 								$waitvalue = $lastvalue;
-								$lastvalue = $currentitemvalue;
+								unset($lastvalue);
+								$lastvalue = &$currentitemvalue;
 							}
 							else if($waitop2 == "")
 							{
@@ -501,7 +575,8 @@ class ParItem extends InnerItem
 								unset($waititem2);
 								$waititem2 = &$current;
 								$waitvalue2 = $lastvalue;
-								$lastvalue = $currentitemvalue;
+								unset($lastvalue);
+								$lastvalue = &$currentitemvalue;
 							}
 							unset($previtem);
 							$previtem = &$current;
@@ -510,8 +585,8 @@ class ParItem extends InnerItem
 					}
 					else
 					{							
-								
-						$lastvalue = $currentitemvalue;
+						unset($lastvalue);
+						$lastvalue = &$currentitemvalue;
 					}
 
 
@@ -535,6 +610,47 @@ class ParItem extends InnerItem
 				$waitop = "";
 				$minuscount = 0;
 			}
+			
+            if ($waitAssigmentObject != null )
+            {
+                $assignResult = null;
+                if($waitAssigmentObject->PropType != PropType::Empty && $waitAssigmentObject->PropertyInfo != null)
+                {
+                    try
+                    {
+                        $assignResult = ComputeActions::AssignObjectValue($waitAssigmentObject, $assigment, $lastvalue);
+                    }
+                    catch(Exception $e) 
+                    {
+					
+                    }
+                }
+                switch ($this->BaseDecoder->Attributes->AssignReturnType)
+                {
+                    case ParItemAssignReturnType::PIART_RETURN_NULL:
+						unset($lastvalue);
+                        $lastvalue = null;
+                        break;
+                    case ParItemAssignReturnType::PIART_RETRUN_BOOL:
+						unset($lastvalue);
+                        $lastvalue = !empty($assignResult);
+                        break;
+                    case ParItemAssignReturnType::PIART_RETURN_ASSIGNVALUE_OR_NULL:
+						unset($lastvalue);
+                        if (!$assignResult) $lastvalue = null;
+                        else $lastvalue = $assignResult->AssignedValue;
+                        break;
+                    case ParItemAssignReturnType::PIART_RETURN_ASSIGN_VALUE:
+                        if ($assignResult) 
+						{
+							unset($lastvalue);
+							$lastvalue = $assignResult->AssignedValue;
+						}
+                        break;
+                }
+            }			
+			
+			
 			if($this->IsObject())
 			{
 				$cr->result->$waitkey = $lastvalue;

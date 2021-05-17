@@ -5,7 +5,7 @@ class RepeatEvulator extends BaseEvulator
 {
 	public function Render(&$tag, &$vars)
 	{
-		$to = $this->EvulateAttribute($tag->ElemAttr['count']);
+		$to = $this->EvulateAttribute($tag->ElemAttr['count'], $vars);
 		if(!is_numeric($to))
 		{
 			return null;

@@ -69,8 +69,6 @@ class ComputeActions
 			case '&':
 				return $item1 & $item2;
 			case '==':
-
-
 				return $item1 == $item2;
 			case '=':
 				return $item1 == $item2;
@@ -98,22 +96,25 @@ class ComputeActions
 				return pow($item1, $item2);
 			case '.':
 				return $item1 . $item2;
+			case '<<':
+				return $item1 << $item2;
+			case '>>':
+				return $item1 >> $item2;
 		}
 		if(!$item1) return $item2;
 		return $item1;
 	}
-
-	public static function CallMethodSingle($object, $name, $params)
+	public static function CallMethodDirect($object, $name, $params, &$iscalled)
 	{
-		if (!$object) return null;
-		
 		if (is_array($object)) {
 			
 			$val = array_value($name, $object);
 			if (is_callable($val)) {
+				$iscalled = true;
 				return call_user_func_array($val, $params);
 			}
-		} else if (is_object($object)) 
+		} 
+		else if (is_object($object)) 
 		{
 
 			if (method_exists($object, $name)) 
@@ -121,6 +122,7 @@ class ComputeActions
 				
 				$rmethod = new ReflectionMethod($object, $name);
 				if ($rmethod->isPublic()) {
+					$iscalled = true;
 					return $rmethod->invokeArgs($object, $params);
 				}
 			}
@@ -129,47 +131,68 @@ class ComputeActions
 				$prop = $object->$name;
 				if(is_callable($prop))
 				{
+					$iscalled = true;
 					return call_user_func_array($prop, $params);
 				}
 			}
 		}
+		return null;
 	}
-
-
-	public static function CallMethod($name, $params, &$vars, &$localvars = null)
+	public static function CallMethodSingle($object, $name, $params, &$iscalled)
 	{
-
-		$dpos = strpos($name, '::');
-		if ($dpos !== false) {
-			$clsname = substr($name, 0, $dpos);
-			$method = substr($name, $dpos + 2);
-			if ((array_value_exists($clsname . '::', ParItem::$globalFunctions) || array_value_exists($name, ParItem::$globalFunctions)) && method_exists($clsname, $method)) {
+		$iscalled = false;
+		if (!$object) return null;
+		if(is_object($object) && get_class($object) == "MultiObject")
+		{
+			for($i = 0; $i < $object->Count; $i++)
+			{
+				if($object->Get($i) == null) continue;
+				$res = ComputeActions::CallMethodSingle($object->Get($i), $name, $params, $iscalled);
+				if($iscalled) return $res;
+			}
+			return null;
+		}
+		return ComputeActions::CallMethodDirect($object, $name, $params, $iscalled);
+	}
+	public static function CallMethod($name, $params, &$vars, &$iscalled, &$localvars = nul, &$sender = null, $checkglobal = true)
+	{
+		$iscalled = false;
+		if($checkglobal)
+		{
+			$dpos = strpos($name, '::');
+			if ($dpos !== false && $sender !== null) {
+				$clsname = substr($name, 0, $dpos);
+				$method = substr($name, $dpos + 2);
+				if ((array_value_exists($clsname . '::', $sender->Attributes->GlobalFunctions) || array_value_exists($name, $sender->Attributes->GlobalFunctions)) && method_exists($clsname, $method)) {
+					$iscalled = true;
+					return call_user_func_array($name, $params);
+				}
+			} 
+			else if ($sender !== null && array_value_exists($name, $sender->Attributes->GlobalFunctions) && function_exists($name)) {
+				
 				return call_user_func_array($name, $params);
 			}
-		} 
-		else if (array_value_exists($name, ParItem::$globalFunctions) && function_exists($name)) {
-			
-			return call_user_func_array($name, $params);
 		}
-		return self::CallMethodSingle($vars, $name, $params);
+		return self::CallMethodSingle($vars, $name, $params, $iscalled);
 	}
 	/**  @param $item InnerItem */
-	public static function GetPropValue($item, &$vars, &$localvars = null)
+	public static function &GetPropValue($item, &$vars, &$localvars = null)
 	{
 
 		$res = null;
 		if ($localvars) 
 		{
-			$res = self::GetPropValueDirect($item, $localvars);
+			$res = &self::GetPropValueDirect($item, $localvars);
 		}
-		if ($res === null) {
-			$res = self::GetPropValueDirect($item, $vars);
+		if ($res === null || $res->PropType == PropType::Empty) {
+			unset($res);
+			$res = &self::GetPropValueDirect($item, $vars);
 		}
 		return $res;
 	}
 
 	/**  @param $item InnerItem */
-	public static function GetPropValueDirect($item, &$vars)
+	public static function &GetPropValueDirect($item, &$vars)
 	{
 		$name = $item->value;
 		if ($name) {
@@ -179,18 +202,41 @@ class ComputeActions
 	}
 
 	/**  @param $item string */
-	public static function GetProp($item, $vars)
+	public static function& GetProp($item, $vars)
 	{
-
+		$pObject = new PropObject();
+		if(is_object($vars) && get_class($vars) == "MultiObject")
+		{
+			for($i = 0; $i < $vars->Count; $i++)
+			{
+				if($vars->Get($i) === null) continue;
+				$res = ComputeActions::GetProp($item, $vars->Get($i));
+				if($res !== null || $res->PropType != PropType::Empty) return $res;
+			}
+			return $pObject;
+		}
 		if (is_array($vars)) 
 		{
-			return array_value($item, $vars);
+			$res = array_value($item, $vars);
+			$pObject->Value = &$res;
+			$pObject->PropType = PropType::Indis;
+			$pObject->Indis = &$item;
+			$pObject->PropertyInfo = &$vars;
+			return $pObject;
 		} 
 		else if (is_object($vars)) 
 		{
 			if(get_class($vars) == "ArrayGroup")
 			{
-				return $vars->GetSingleValueForAll($item);
+				unset($findArray);
+				$findArray =  $vars->GetSingleValueForAllExtend($item);
+				if($findArray->Found)
+				{
+					$pObject->Value = &$findArray->Value;
+					$pObject->PropType = PropType::Indis;
+					$pObject->Indis = &$item;
+					$pObject->PropertyInfo = &$findArray->Array;
+				}
 			}
 			else
 			{
@@ -198,13 +244,16 @@ class ComputeActions
 				{
 					$prop = new ReflectionProperty($vars, $item);
 					if ($prop->isPublic()) {
-						return $prop->getValue($vars);
+						$pObject->Value = &$vars->$item;// $prop->getValue($vars);
+						$pObject->PropType = PropType::Property;
+						$pObject->PropertyInfo = &$prop;
+						$pObject->Indis = &$vars;
 					}
 				}
 			}
 
 		}
-		return null;
+		return $pObject;
 	}
 
 	/**  @param $item InnerItem */
@@ -230,5 +279,36 @@ class ComputeActions
 	public static function IsObjectOrArray(&$item)
 	{
 		return $item && is_object($item) || is_array($item);
+	}
+	public static function AssignObjectValue(&$probObj, $op, &$value)
+	{
+		$ar = new AssignResult();
+		if ($probObj == null || $probObj->Indis === null) return $ar;
+		if (strlen($op) > 1)
+		{
+			$value = ComputeActions::OperatorResult($probObj->Value, $value, substr($op, 0, strlen($op) - 1));
+		}
+
+		if ($probObj->PropType == PropType::Property)
+		{
+
+			unset($pi);
+			$pi = &$probObj->PropertyInfo;
+
+			if ($pi->isPublic())
+			{
+				 $pi->setAccessible(true);
+				$pi->setValue($probObj->Indis, $value);
+				$ar->AssignedValue = &$value;
+				$ar->Success = true;
+			}
+		}
+		else if ($probObj->PropType == PropType::Indis)
+		{
+			$probObj->PropertyInfo[$probObj->Indis] = $value;
+			$ar->AssignedValue = &$value;
+			$ar->Success = true;
+		}
+		return $ar;
 	}
 }

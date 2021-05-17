@@ -64,6 +64,25 @@ class ArrayGroup
 		}
 		return null;
 	}
+	public function GetSingleValueForAllExtend($key)
+	{
+		$obj = new stdClass();
+		$obj->Found = false;
+		for($i = $this->length - 1; $i >= 0; $i--)
+		{
+			unset($curArray);
+			$curArray = &$this->GetArray($i);
+			if(!$curArray) continue;
+			if(array_key_exists($key, $curArray))
+			{
+				$obj->Found = true;
+				$obj->Value = &$curArray[$key];
+				$obj->Array = &$curArray;
+				return $obj;
+			}
+		}
+		return $obj;
+	}
 	public function GetValue($key)
 	{
 		return $this->GetSingleValueForAll($key);

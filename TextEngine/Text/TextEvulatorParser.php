@@ -377,6 +377,7 @@ class TextEvulatorParser
 		$quotchar = null;
 		$initial =false;
 		$istagattrib = false;
+		$totalPar = 0;
 		for ($i = $this->pos; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			
@@ -478,8 +479,22 @@ class TextEvulatorParser
 			 ($namefound && $tagElement->NoAttrib) || ($istagattrib && $tagElement->HasFlag(TextElementFlags::TEF_TagAttribonly))
 			)
 			{
-				if(($cur != $this->Evulator->RightTag && $tagElement->ElementType == TextElementType::Parameter) || $cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || $tagElement->HasFlag(TextElementFlags::TEF_DisableLastSlash)))
+				if ($inquot && $quotchar == $cur)
 				{
+					$inquot = false;
+				}
+				else if (!$inquot && ($cur == "'" || $cur == "\""))
+				{
+					$inquot = true;
+					$quotchar = $cur;
+				}
+				if(!$inquot && $cur == $this->Evulator->LeftTag && $tagElement->AllowIntertwinedPar)
+				{
+					$totalPar++;
+				}
+				if($inquot || $totalPar > 0 ||  (($cur != $this->Evulator->RightTag && $tagElement->ElementType == TextElementType::Parameter) || $cur != $this->Evulator->RightTag && ($cur != '/' && $next != $this->Evulator->RightTag || $tagElement->HasFlag(TextElementFlags::TEF_DisableLastSlash))))
+				{
+					if (!$inquot && $cur == $this->Evulator->RightTag && $totalPar > 0) $totalPar--;
 					$current .= $cur;
 					continue;
 				}
@@ -584,11 +599,6 @@ class TextEvulatorParser
 						$i++;
 					}
 				}
-				if ($cur == $this->Evulator->LeftTag) {
-					if($this->Evulator->SurpressError) continue;
-					$this->Evulator->IsParseMode = false;
-					throw new Exception('Syntax Error');
-				}
 				if ($cur == $this->Evulator->RightTag) {
 					if (!$namefound) {
 						$tagElement->ElemName = $current;
@@ -651,6 +661,16 @@ class TextEvulatorParser
 						}
 					}
 					continue;
+				}
+				if ($cur == $this->Evulator->LeftTag) {
+					if (!$tagElement->AllowIntertwinedPar)
+					{
+						if($this->Evulator->SurpressError) continue;
+						$this->Evulator->IsParseMode = false;
+						throw new Exception('Syntax Error');						
+					}
+					$totalPar++;
+
 				}
 			}
 			$current .= $cur;

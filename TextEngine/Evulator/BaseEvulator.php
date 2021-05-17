@@ -14,39 +14,41 @@ abstract class BaseEvulator
 	/** @param $tag TextElement
 	 * @return TextEvulateResult
 	 */
+	 
+	protected function &CreatePardecode($text, $decode = true)
+	{
+		$pardecoder = new ParDecoder($text);
+		if($decode) $pardecoder->Decode();
+		$pardecoder->OnGetAttributes =  function() {return $this->Evulator->ParAttributes;};
+		return $pardecoder;
+	}
 	public abstract function Render(&$tag, &$vars);
 	function RenderFinish(&$tag, &$vars, &$latestResult){}
 	protected function EvulateTextCustomParams($text, &$parameters)
 	{
-		$pardecoder = new ParDecoder($text);
-		$pardecoder->Decode();
+		$pardecoder = $this->CreatePardecode($text);
 		$er = $pardecoder->Items->Compute($parameters);
 		return $er->result;
 	}
 	protected function EvulatePar(&$pardecoder, &$additionalparams = null)
 	{
-		if($pardecoder->SurpressError != $this->Evulator->SurpressError)
+		if($additionalparams == null)
 		{
-			$pardecoder->SurpressError = $this->Evulator->SurpressError;
+			$er = $pardecoder->Items->Compute($this->Evulator->GlobalParameters, null, $this->Evulator->LocalVariables);
 		}
-		$index = -1;
-		if($additionalparams != null)
+		else
 		{
-
-			$index = $this->Evulator->LocalVariables->AddArray($additionalparams);
-		}
-		$er =  $pardecoder->Items->Compute($this->Evulator->GlobalParameters, null, $this->Evulator->LocalVariables);
-		if($index >= 0)
-		{
-			$this->Evulator->LocalVariables->RemoveAt($index);
+			$multi = new MultiObject();
+			$multi->Add($additionalparams);
+            $multi->Add($this->Evulator->GlobalParameters);
+			$er = $pardecoder->Items->Compute($multi, null, $this->Evulator->LocalVariables);
 		}
 		return $er->result[0];
 		
 	}
 	protected function EvulateText($text, &$additionalparams = null)
 	{
-		$pardecoder = new ParDecoder($text);
-		$pardecoder->Decode();
+		$pardecoder = $this->CreatePardecode($text);
 		return $this->EvulatePar($pardecoder, $additionalparams);
 	}
 	protected function StorePreviousValue($varname)
@@ -87,39 +89,37 @@ abstract class BaseEvulator
 		if($attr == null || empty($attr->Value)) return null;
 		if($attr->ParData == null)
 		{
-			$attr->ParData = new ParDecoder($attr->Value);
-			$attr->ParData->Decode();
+			$attr->ParData = $this->CreatePardecode($attr->Value);
 		}
 		return $this->EvulatePar($attr->ParData, $additionalparams);
 	}
-	protected function ConditionSuccess(&$tag, $attr = 'c')
+	protected function ConditionSuccess(&$tag, $attr = '*', &$vars = null)
 	{
 		$pardecoder = null;
-		if($tag->NoAttrib)
+		if(($attr == null || $attr == '*') && $tag->NoAttrib)
 		{
 			if($tag->Value === null) return true;
 
 			$pardecoder = &$tag->ParData;
 			if($pardecoder == null)
 			{
-				$pardecoder = new ParDecoder($tag->Value);
-				$pardecoder->Decode();
+				$pardecoder = $this->CreatePardecode($tag->Value);
 				$tag->ParData =& $pardecoder;
 			}
 		}
 		else
 		{
+			if($attr == '*') $attr = 'c';
 			$t_attr = &$tag->ElemAttr[$attr];
 			if($t_attr == null || $t_attr->Value == null) return true;
 			$pardecoder = &$tag->ParData;
 			if($pardecoder == null)
 			{
-				$pardecoder = new ParDecoder($t_attr->Value);
-				$pardecoder->Decode();
+				$pardecoder = $this->CreatePardecode($t_attr->Value);
 				$t_attr->ParData =& $pardecoder;
 			}		
 		}
-		$res = $this->EvulatePar($pardecoder);
+		$res = $this->EvulatePar($pardecoder, $vars);
 		return $res;
 	}
 	protected function SetKeyValue($name, $value)

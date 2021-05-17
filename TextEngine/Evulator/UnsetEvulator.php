@@ -5,7 +5,7 @@ class UnsetEvulator  extends  BaseEvulator
 	{
 		$result = new TextEvulateResult();
 		$result->Result = TextEvulateResult::EVULATE_NOACTION;
-		if ($this->ConditionSuccess($tag, "if"))
+		if ($this->ConditionSuccess($tag, "if", $vars))
 		{
 			$defname = $tag->GetAttribute("name");
 			if (empty($defname)) return $result;
