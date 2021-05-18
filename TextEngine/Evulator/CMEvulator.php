@@ -8,7 +8,7 @@ class CMEvulator extends BaseEvulator
 		//$name = $tag->GetAttribute("__name");
 		$name = $tag->ElemAttr->GetFirstKey();
 		if(!isset($name) || empty($name)) return null;
-		$cr = $this->ConditionSuccess($tag, 'if');
+		$cr = $this->ConditionSuccess($tag, 'if', $vars);
 		if(!$cr) return null;
 		if(!$name) return null;
 		

@@ -8,7 +8,7 @@ class WhileEvulator extends BaseEvulator
 		$result->Result = TextEvulateResult::EVULATE_TEXT;
 		$this->CreateLocals();
 		$loop_count = 0;
-		while ($this->ConditionSuccess($tag))
+		while ($this->ConditionSuccess($tag, "*", $vars))
 		{
 			$this->SetLocalWR("loop_count", $loop_count++);
 			$cresult = $tag->EvulateValue(0, 0, $vars);
