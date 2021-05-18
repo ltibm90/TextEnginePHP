@@ -75,6 +75,7 @@ class ParDecoder extends PropertyBase
 		$qutochar = "\0";
 		$innerItems = array();
 		$value = '';
+		$valDotEntered  = false;
 		for ($i = $start; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			$next = "\0";
@@ -113,7 +114,14 @@ class ParDecoder extends PropertyBase
 
 					if(!str_isnullorempty($value))
 					{
+						if($cur == '.' && !$valDotEntered  && is_numeric($value))
+						{
+							$valDotEntered = true;
+							$value .= $cur;
+							continue;
+						}
 						$innerItems[]= $this->inner($value, $qutochar);
+						$valDotEntered = false;
 						$value = "";
 					}
 					if ($cur == '[' || $cur == '(' || $cur == '{') {
@@ -139,7 +147,7 @@ class ParDecoder extends PropertyBase
 						if (($cur == "=" && $next == ">") || ($cur == "!" && $next == "=") || ($cur == ">" && $next == "=") || ($cur == "<" && $next == "=")
 							|| ($cur == "+" && $next == "=") || ($cur == "-" && $next == "=")  || ($cur == "*" && $next == "=")  || ($cur == "/" && $next == "=")
 							|| ($cur == "&" && $next == "=") || ($cur == "|" && $next == "=") || ($cur == "<" && $next == "<") || ($cur == ">" && $next == ">")) {
-							if ($next2 == '=' && (($cur == '<' && $next == '<') || ($cur == '>' && $next == '>')))
+							if ($next2 == '=' && (($cur == '<' && $next == '<') || ($cur == '>' && $next == '>') || ($cur == '%' && $next == '=')))
 							{
 								$inner2->value = $cur . $next . $next2;
 							}

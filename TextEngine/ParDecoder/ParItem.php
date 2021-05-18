@@ -351,7 +351,7 @@ class ParItem extends InnerItem
 						continue;
 					}
 					$opstr = $current->value;
-					if ($waitAssigmentObject == null && ($opstr == "=" || $opstr == "+=" || $opstr == "-=" || $opstr == "*=" || $opstr == "/=" || $opstr == "^=" || $opstr == "&=" || $opstr == "|=" || $opstr == "<<=" || $opstr == ">>="))
+					if ($waitAssigmentObject == null && ($opstr == "=" || $opstr == "+=" || $opstr == "-=" || $opstr == "*=" || $opstr == "/=" || $opstr == "^=" || $opstr == "&=" || $opstr == "|=" || $opstr == "<<=" || $opstr == ">>="|| $opstr == "%="))
 					{
 						if ($totalOp <= 1 && ($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowAssigment) != 0)
 						{

@@ -7,9 +7,9 @@ class ParDecodeAttributes
 	public $SurpressError;
 	public function __construct()
 	{
-		$this->Iinitialise();
+		$this->Initialise();
 	}
-	protected function Iinitialise()
+	protected function Initialise()
 	{
 		$this->GlobalFunctions = array('count', 'strlen', 'HTML::');
 		$this->AssignReturnType = ParItemAssignReturnType::PIART_RETRUN_BOOL;

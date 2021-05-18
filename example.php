@@ -151,7 +151,7 @@ function TemplateTest()
 	$kv["name"] = "MacMillan";
 	$kv["grup"] = "AR-GE";
 	$kv["random"] = function() {return rand(1, 100);};
-	$pf->Text = 'ParFormat örneği; Kullanıcı: {%name}, Grup: {%grup}, Random Sayı: {%random()}';
+	$pf->Text = 'ParFormat örneği; Kullanıcı: {%name}, Grup: {%grup}, Random Sayı: {%random()} {{%1.25 + 2.75} == {%1.25 + 2.75}';
 	echo $pf->Apply($kv);
 
 	$wtc = new WhileTestClass();
