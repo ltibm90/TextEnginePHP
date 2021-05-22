@@ -129,6 +129,8 @@ class ParItem extends InnerItem
 					{
 						if ($current->ParName == "(")
 						{				
+							unset($lastPropObject);
+							$lastPropObject = null;
 							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowMethodCall)
 							{
 								unset($iscalled);
@@ -500,7 +502,7 @@ class ParItem extends InnerItem
 						
 							if ($xoperator->value == ".")
 							{
-								if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowArrayAccess)
+								if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowSubMemberAccess)
 								{
 									if($currentitemvalue)
 									{
