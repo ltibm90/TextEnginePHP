@@ -281,7 +281,8 @@ class ParItem extends InnerItem
 							unset($lastPropObject);
 							$lastPropObject = ComputeActions::GetPropValue($current, $vars, $localvars);
 							unset($currentitemvalue);
-							$currentitemvalue = &$lastPropObject->Value;
+							if(!$lastPropObject) $currentitemvalue = null;
+							else $currentitemvalue = &$lastPropObject->Value;
 						}
 				
 					}
@@ -499,14 +500,20 @@ class ParItem extends InnerItem
 						
 							if ($xoperator->value == ".")
 							{
-								
-								if($currentitemvalue)
+								if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowArrayAccess)
 								{
-									unset($lastPropObject);
-									$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
-									unset($lastvalue);
-									$lastvalue = &$lastPropObject->Value;
+									if($currentitemvalue)
+									{
+										unset($lastPropObject);
+										$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+										unset($lastvalue);
+										$lastvalue = &$lastPropObject->Value;
+									}
 								}
+								else
+								{
+								}
+
 
 							}
 							else

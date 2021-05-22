@@ -191,7 +191,7 @@ class ParDecoder extends PropertyBase
 			}
 			$value .= $cur;
 		}
-		if (!str_isnullorempty($value)) {
+		if (!str_isnullorempty($value)|| ($qutochar == "'" || $qutochar == "\"")) {
 			$innerItems[] = $this->inner($value, $qutochar);
 		}
 		$this->pos = $this->TextLength;

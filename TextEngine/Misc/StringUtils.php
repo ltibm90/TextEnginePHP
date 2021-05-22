@@ -9,7 +9,7 @@ class StringUtils
 		for ($i = 0; $i < strlen($text); $i++)
 		{
 			$cur = $text[$i];
-			if ($quotechar == '0' && $cur == "\"" || $cur == "'") $quotechar = $cur;
+			if ($quotechar == '0' && ($cur == "\"" || $cur == "'")) $quotechar = $cur;
 			else if ($quotechar != '0' && $cur == $quotechar) $quotechar = '0';
 			$nextN = $i + 1 < strlen($text) && $text[$i + 1] == "\n";
 			if ($quotechar == '0' && ($cur == "\n" || ($cur == "\r")))
