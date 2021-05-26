@@ -2,7 +2,7 @@
 
 
 
-class InnerItem
+class InnerItem extends PropertyBase
 {
 	const TYPE_STRING = 0;
 	const TYPE_NUMERIC = 1;

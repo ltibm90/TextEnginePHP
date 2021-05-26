@@ -21,6 +21,7 @@ require_once TE_PATH_PREFIX .'Misc/Utils.php';
 require_once TE_PATH_PREFIX .'Misc/EvualtorTypes.php';
 require_once TE_PATH_PREFIX .'Misc/SavedMacros.php';
 require_once TE_PATH_PREFIX .'Misc/ArrayGroup.php';
+require_once TE_PATH_PREFIX .'Misc/EvulatorOptions.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/PardecodeFlags.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParDecoder.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/Inners.php';
@@ -32,6 +33,9 @@ require_once TE_PATH_PREFIX . 'ParDecoder/ComputeActions.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/PropObject.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParDecodeAttributes.php';
 require_once TE_PATH_PREFIX . 'ParDecoder/ParItemAssignReturnType.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParProperty.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParTracer.php';
+require_once TE_PATH_PREFIX . 'ParDecoder/ParTracerItem.php';
 require_once TE_PATH_PREFIX . 'XPathClasses/_XPathIncludes.php';
 
 spl_autoload_register(function ($class) {

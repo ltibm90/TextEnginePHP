@@ -18,5 +18,6 @@ abstract class TextElementFlags
         /// </summary>
 	const TEF_NoParse  = 32;
 	const TEF_AutoCloseIfSameTagFound = 64;
-	const TEF_PreventAutoCreation = 256;
+	const TEF_PreventAutoCreation = 128;
+	const TEF_NoParse_AllowParam = 256;
 }

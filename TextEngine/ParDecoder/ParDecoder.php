@@ -72,7 +72,7 @@ class ParDecoder extends PropertyBase
 	{
 		$inspec = false;
 		$inquot = false;
-		$qutochar = "\0";
+		$quotechar = "\0";
 		$innerItems = array();
 		$value = '';
 		$valDotEntered  = false;
@@ -101,7 +101,7 @@ class ParDecoder extends PropertyBase
 				}
 				if ($cur == "'" || $cur == "\"") {
 					$inquot = true;
-					$qutochar = $cur;
+					$quotechar = $cur;
 					continue;
 				}
 				if ($cur == '+' || $cur == '-' || $cur == '*' ||
@@ -120,7 +120,7 @@ class ParDecoder extends PropertyBase
 							$value .= $cur;
 							continue;
 						}
-						$innerItems[]= $this->inner($value, $qutochar);
+						$innerItems[]= $this->inner($value, $quotechar);
 						$valDotEntered = false;
 						$value = "";
 					}
@@ -164,7 +164,7 @@ class ParDecoder extends PropertyBase
 						}
 
 						$innerItems[] = $inner2;
-						$qutochar = "\0";
+						$quotechar = "\0";
 						 $valuestr = $inner2->value;
 						 if ($valuestr == "=" ||$valuestr == "<=" || $valuestr == ">=" || $valuestr == "<" || $valuestr == ">" || $valuestr == "!=" || $valuestr == "==")
 							{
@@ -179,7 +179,7 @@ class ParDecoder extends PropertyBase
 					continue;
 				}
 			} else {
-				if ($cur == $qutochar) {
+				if ($cur == $quotechar) {
 					$inquot = false;
 					continue;
 				}
@@ -191,8 +191,8 @@ class ParDecoder extends PropertyBase
 			}
 			$value .= $cur;
 		}
-		if (!str_isnullorempty($value)|| ($qutochar == "'" || $qutochar == "\"")) {
-			$innerItems[] = $this->inner($value, $qutochar);
+		if (!str_isnullorempty($value)|| ($quotechar == "'" || $quotechar == "\"")) {
+			$innerItems[] = $this->inner($value, $quotechar);
 		}
 		$this->pos = $this->TextLength;
 

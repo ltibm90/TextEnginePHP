@@ -61,6 +61,7 @@ class TextEvulator extends PropertyBase
 	public $SpecialCharOption;
 	public $IntertwinedBracketsState;
 	public $ParAttributes;
+	public $ReturnEmptyIfTextEvulatorIsNull;
 	public function &GetHandler()
 	{
 		$handler = null;
@@ -124,6 +125,7 @@ class TextEvulator extends PropertyBase
 		$this->TagInfos["if"]->Flags = TextElementFlags::TEF_NoAttributedTag | TextElementFlags::TEF_ConditionalTag;
 		$this->TagInfos["while"]->Flags = TextElementFlags::TEF_NoAttributedTag;
 		$this->TagInfos["do"]->Flags = TextElementFlags::TEF_NoAttributedTag;
+		$this->TagInfos["text"]->Flags = TextElementFlags::TEF_NoParse_AllowParam;
 		
 	}
 	private function InitEvulator()
@@ -147,6 +149,7 @@ class TextEvulator extends PropertyBase
 		$this->EvulatorTypes["unset"] = "UnsetEvulator";
 		$this->EvulatorTypes["while"] = "WhileEvulator";
 		$this->EvulatorTypes["do"] = "DoEvulator";
+		$this->EvulatorTypes["text"] = "TextParamEvulator";
 	}
 	private function InitAmpMaps()
 	{

@@ -6,8 +6,7 @@ class TextEvulatorParser
 	public $Text;
 	private $pos = 0;
 	private $TextLength;
-	private $in_noparse = false;
-	private $noparse_tag = "";
+	private $directclose = false;
 	/** @var TextEvulator */
 	public $Evulator;
 	/** @param $baseevulator TextEvulator */
@@ -89,7 +88,7 @@ class TextEvulatorParser
 
 					if (!$prevtag->NameEquals($tag->ElemName, true)) {
 						$elem = new TextElement();
-						$elem->BaseEvulator = &$this->Evulator;
+						$elem->BaseEvulator = $this->Evulator;
 						$elem->ElemName = $prevtag->ElemName;
 						$elem->ElemAttr = $prevtag->ElemAttr;
 						$elem->Autoadded = true;
@@ -133,10 +132,10 @@ class TextEvulatorParser
 						$prevtag->CloseState = TextElementClosedType::TECT_CLOSED;
 						break;
 					}
+
+					$t_tag = &$this->GetNotClosedPrevTag($prevtag);
 					unset($prevtag);
-					$prevtag = &$this->GetNotClosedPrevTag($prevtag);
-
-
+					$prevtag = &$t_tag;
 				}
 				if (!$prevtag && $this->Evulator->ThrowExceptionIFPrevIsNull && !$this->Evulator->SurpressError) {
 					$this->Evulator->IsParseMode = false;
@@ -151,8 +150,6 @@ class TextEvulatorParser
 			$i = $this->pos;
 		}
 		$this->pos = 0;
-		$this->in_noparse = false;
-		$this->noparse_tag = "";
 		$this->Evulator->IsParseMode = false;
 	}
 	private function &GetNotClosedPrevTagByName(&$tag, $name)
@@ -250,18 +247,23 @@ class TextEvulatorParser
 		$tagElement->BaseEvulator = $this->Evulator;
 		$istextnode = false;
 		$intag = false;
+		$in_noparse = ($parent != null && ($parent->HasFlag(TextElementFlags::TEF_NoParse) || $parent->HasFlag(TextElementFlags::TEF_NoParse_AllowParam)));
 		for ($i = $start; $i < $this->TextLength; $i++) {
-			if($this->Evulator->NoParseEnabled && $this->in_noparse)
+			$cur = $this->Text[$i];
+			$next = '\0';
+			if ($i + 1 < $this->TextLength) {
+				$next = $this->Text[$i + 1];
+			}
+			if($in_noparse && $cur == $this->Evulator->LeftTag && ($next != $this->Evulator->ParamChar || !$parent->HasFlag(TextElementFlags::TEF_NoParse_AllowParam)))
 			{
 				$istextnode = true;
 				$tagElement->SetTextTag(true);
 			}
 			else
 			{
-				$cur = $this->Text[$i];
-				if (!$inspec) {
+				if (!$inspec) 
+				{
 					if ($cur == $this->Evulator->LeftTag) {
-
 						if ($intag) {
 							if($this->Evulator->SurpressError)
 							{
@@ -307,7 +309,8 @@ class TextEvulatorParser
 						}
 					}
 				}
-				if (!$inspec && $cur == $this->Evulator->RightTag) {
+				if (!$inspec && $cur == $this->Evulator->RightTag) 
+				{
 					if (!$intag)
 					{
 						if($this->Evulator->SurpressError)
@@ -326,22 +329,20 @@ class TextEvulatorParser
 			$this->pos = $i;
 			if (!$intag || $istextnode) {
 				
-				$tagElement->Value = $this->ParseInner();
-				if(!$this->in_noparse && $tagElement->ElementType == TextElementType::TextNode && empty($tagElement->Value))
+				$tagElement->Value = $this->ParseInner($parent);
+				if(!$in_noparse && $tagElement->ElementType == TextElementType::TextNode && empty($tagElement->Value))
 				{
 					return null;
 				}
 				$intag = false;
-				if($this->in_noparse)
+				if($this->directclose && $in_noparse)
 				{
 					$parent->AddElement($tagElement);
 					$elem = new TextElement();
 					$elem->Parent = $parent;
 
-					$elem->ElemName = $this->noparse_tag;
+					$elem->ElemName = $parent->ElemName;
 					$elem->SlashUsed = true;
-					$this->in_noparse = false;
-					$this->noparse_tag = "";
 					return $elem;
 				}
 				return $tagElement;
@@ -350,11 +351,6 @@ class TextEvulatorParser
 				$this->ParseTagHeader($tagElement);
 				if(empty($tagElement->ElemName)) return null;
 				$intag = false;
-				if($this->Evulator->NoParseEnabled && ($tagElement->GetTagFlags() & TextElementFlags::TEF_NoParse) > 0)
-				{
-					$this->in_noparse = true;
-					$this->noparse_tag = $tagElement->ElemName;
-				}
 				return $tagElement;
 
 			}
@@ -677,13 +673,14 @@ class TextEvulatorParser
 		}
 		$this->pos = $this->TextLength;
 	}
-	private function ParseInner()
+	private function ParseInner(&$parent)
 	{
 		$text = '';
 		$inspec = false;
 		$nparsetext = '';
 		$parfound = false;
-
+		$in_noparse = ($parent != null && ($parent->HasFlag(TextElementFlags::TEF_NoParse) || $parent->HasFlag(TextElementFlags::TEF_NoParse_AllowParam)));
+		$this->directclose = false;
 		for ($i = $this->pos; $i < $this->TextLength; $i++) {
 			$cur = $this->Text[$i];
 			$next = ($i + 1 < $this->TextLength) ? $this->Text[$i + 1] : '\0';
@@ -694,7 +691,8 @@ class TextEvulatorParser
 			}
 			if ($cur == "\\") 
 			{
-				if ($this->Evulator->SpecialCharOption == SpecialCharType::SCT_AllowedAll ||  ($this->Evulator->SpecialCharOption == SpecialCharType::SCT_AllowedClosedTagOnly && $next == $this->Evulator->RightTag))
+				if ($this->Evulator->SpecialCharOption == SpecialCharType::SCT_AllowedAll || ((($this->Evulator->SpecialCharOption & SpecialCharType::SCT_AllowedClosedTagOnly) != 0) && $next == $this->Evulator->RightTag)
+					|| ((($this->Evulator->SpecialCharOption & SpecialCharType::SCT_AllowedNoParseWithParamTagOnly) != 0) && $in_noparse && $parent->HasFlag(TextElementFlags::TEF_NoParse_AllowParam)))
 				{
 					$inspec = true;
 					continue;
@@ -717,7 +715,7 @@ class TextEvulatorParser
 				//$i = $this->pos;
 				//continue;
 			//}
-			if($this->Evulator->NoParseEnabled && $this->in_noparse)
+			if($this->Evulator->NoParseEnabled && $in_noparse)
 			{
 				if($parfound)
 				{
@@ -729,10 +727,11 @@ class TextEvulatorParser
 					}
 					else if($cur == $this->Evulator->RightTag)
 					{
-						if(mb_strtolower($nparsetext) == '/' .  mb_strtolower($this->noparse_tag))
+						if(mb_strtolower($nparsetext) == '/' .  mb_strtolower($parent->ElemName))
 						{
 							$parfound = false;
 							$this->pos = $i;
+							$this->directclose = true;
 							if ($this->Evulator->TrimStartEnd)
 							{
 								return trim($text);
@@ -753,6 +752,16 @@ class TextEvulatorParser
 				{
 					if($cur == $this->Evulator->LeftTag)
 					{
+						if ($next == $this->Evulator->ParamChar && $parent->HasFlag(TextElementFlags::TEF_NoParse_AllowParam))
+						{
+							$this->pos = $i - 1;
+                            $this->directclose = false;
+							if ($this->Evulator->TrimStartEnd)
+							{
+								return trim($text);
+							}
+							return $text;
+						}
 						$parfound = true;
 						continue;
 					}

@@ -51,6 +51,7 @@ class ForEvulator extends BaseEvulator
 		$this->CreateLocals();
 		//$this->StorePreviousValue($varname);
 		$result = new TextEvulateResult();
+		$loop_count = 0;
 		for($i = $start; $i < $to; $i += $step)
 		{
 
@@ -70,6 +71,7 @@ class ForEvulator extends BaseEvulator
 			{
 				break;
 			}
+			if ($this->Options->Max_For_Loop !== 0 && $loop_count++ > $this->Options->Max_For_Loop) break;
 		}
 		//$this->RemoveVar($varname);
 		$this->DestroyLocals();

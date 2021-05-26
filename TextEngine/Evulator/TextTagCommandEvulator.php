@@ -7,7 +7,7 @@ class TextTagCommandEvulator extends BaseEvulator
 		$result->Result = TextEvulateResult::EVULATE_NOACTION;
 		$str = $tag->Value;
 		if (empty($str)) return $result;
-		$lines = StringUtils::SplitLineWithQuote($str);
+		$lines = StringUtils::SplitLineWithQuote($str, true);
 
 		for ($i = 0; $i < count($lines); $i++)
 		{

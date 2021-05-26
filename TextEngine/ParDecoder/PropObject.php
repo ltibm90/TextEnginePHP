@@ -1,6 +1,7 @@
 <?php
 class PropObject
 {
+	public $FullName;
 	public $Value;
 	public $PropertyInfo;
 	public $PropType;
@@ -16,4 +17,5 @@ abstract class PropType
 	//Not used
 	const KeyValues = 3;
 	const Indis = 4;
+	const Method = 5;
 }

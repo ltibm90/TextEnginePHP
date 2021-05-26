@@ -1,6 +1,6 @@
 <?php
 
-abstract class BaseEvulator
+abstract class BaseEvulator extends PropertyBase
 {
 	/** @var TextEvulator */
 	protected $Evulator;
@@ -14,7 +14,10 @@ abstract class BaseEvulator
 	/** @param $tag TextElement
 	 * @return TextEvulateResult
 	 */
-	 
+	public function& Get_Options()
+	{
+		return $this->Evulator->EvulatorTypes->Options;
+	}
 	protected function &CreatePardecode($text, $decode = true)
 	{
 		$pardecoder = new ParDecoder($text);

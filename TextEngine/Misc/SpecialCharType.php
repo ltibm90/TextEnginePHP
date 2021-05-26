@@ -12,5 +12,9 @@ abstract class SpecialCharType
         /// <summary>
         /// e.g(\test\{} result: \test{ 
         /// </summary>
-	const SCT_AllowedClosedTagOnly = 3;
+	const SCT_AllowedClosedTagOnly = 4;
+	/// <summary>
+	/// e.g{text}\{}{&text} result: {}
+	/// </summary>
+	const SCT_AllowedNoParseWithParamTagOnly = 8;
 }

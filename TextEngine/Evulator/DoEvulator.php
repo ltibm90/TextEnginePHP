@@ -24,6 +24,7 @@ class DoEvulator extends BaseEvulator
 			{
 				break;
 			}
+			if ($this->Options->Max_DoWhile_Loop !== 0 && $loop_count - 1 > $this->Options->Max_DoWhile_Loop) break;
 		} while ($this->ConditionSuccess($tag, '*', $vars));
 		$this->DestroyLocals();
 		return $result;

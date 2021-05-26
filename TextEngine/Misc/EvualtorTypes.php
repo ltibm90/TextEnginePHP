@@ -1,21 +1,25 @@
 <?php
-class EvulatorTypesClass implements ArrayAccess
+class EvulatorTypesClass  extends PropertyBase implements ArrayAccess
 {
 	public $Param;
 	public $GeneralType;
 	public $Text;
-
+	public $p_options;
+	public function& Get_Options()
+	{
+		return $this->p_options;
+	}
     private $innerArray = array();
 	
     public function __construct() {
 		$this->Param = "ParamEvulator";
 		$this->GeneralType = "GeneralEvulator";
 		$this->Text = "TexttagEvulator";
+		$this->p_options = new EvulatorOptions();
     }
 	
 	public function Clear()
 	{
-		unset($this->innerArray);
 		$this->innerArray = array();
 	}
 

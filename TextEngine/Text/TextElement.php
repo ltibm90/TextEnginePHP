@@ -518,7 +518,10 @@ class TextElement extends PropertyBase
 
 				return $rResult;
 			}
-			$result->TextContent = $this->Value;
+			if(!$this->BaseEvulator->ReturnEmptyIfTextEvulatorIsNull)
+			{
+				$result->TextContent = $this->Value;
+			}
 			return $result;
 		}
 

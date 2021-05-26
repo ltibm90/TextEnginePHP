@@ -1,8 +1,6 @@
 <?php
 class ParItem extends InnerItem
 {
-
-
 	public function __construct()
 	{
 		
@@ -10,7 +8,7 @@ class ParItem extends InnerItem
 	public $BaseDecoder;
 	public $ParName;
 	/** @var ParItem */
-	public $parent;
+	public $Parent;
 
 	/** @var InnerItem[] */
 	public $innerItems;
@@ -30,12 +28,16 @@ class ParItem extends InnerItem
 	{
 		return $this->ParName == '[';
 	}
+	public function& Get_Attributes()
+	{
+		return $this->BaseDecoder->Attributes;
+	}
 	public function GetParentUntil($name)
 	{
-		$parent = $this->parent;
+		$parent = $this->Parent;
 		while ($parent != null && $parent->ParName == $name)
 		{
-			$parent = $parent->parent;
+			$parent = $parent->Parent;
 		}
 		return $parent;
 	}
@@ -63,6 +65,7 @@ class ParItem extends InnerItem
         $lastPropObject = null;
         $waitAssigmentObject = null;
         $totalOp = 0;
+		$propertyStr = '';
 		if($this->innerItems && is_array($this->innerItems))
 		{
 			$innercount = count($this->innerItems);
@@ -136,7 +139,10 @@ class ParItem extends InnerItem
 								unset($iscalled);
 								$iscalled = false;
 								unset($currentitemvalue);
-								if($this->BaseDecoder && $this->BaseDecoder->Attributes->SurpressError)
+								if (strlen($propertyStr)== 0) $propertyStr = $prevvalue;
+                                else $propertyStr .= '.' . $prevvalue;
+                                $allowget = $this->AllowAccessProperty($propertyStr, PropType::Method);
+								if($allowget && $this->BaseDecoder && $this->BaseDecoder->Attributes->SurpressError)
 								{
 									try 
 									{
@@ -147,7 +153,7 @@ class ParItem extends InnerItem
 										$currentitemvalue = null;
 									}
 								}
-								else
+								else if($allowget)
 								{
 									$currentitemvalue = ComputeActions::CallMethod($prevvalue, $subresult->result, $varnew, $iscalled, $localvars, $this->BaseDecoder, $checkglobal);	
 								}
@@ -156,17 +162,22 @@ class ParItem extends InnerItem
 							{
 								//$currentitemvalue = null;
 							}
-
+							if($allowget) $this->AddToTrace($propertyStr, PropType::Method, $currentitemvalue, $iscalled);
 
 						}
 						else if($current->ParName == "[")
 						{
 							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowArrayAccess)
 							{
+								if (strlen($propertyStr)== 0) $propertyStr = $prevvalue;
+                                else $propertyStr .= '.' . $prevvalue;
+								$allowget = $this->AllowAccessProperty($propertyStr, PropType::Indis);
 								unset($lastPropObject);
-								$lastPropObject = ComputeActions::GetProp($prevvalue, $varnew);
+								if($allowget) $lastPropObject = ComputeActions::GetProp($prevvalue, $varnew);
+								else $lastPropObject = null;
 								unset($prop);
-								$prop = &$lastPropObject->Value;
+								if($lastPropObject)	$prop = &$lastPropObject->Value;
+								else $prop = null;
 								if (is_array($prop) || is_string($prop))
 								{
 									
@@ -202,6 +213,7 @@ class ParItem extends InnerItem
 								{
 									
 								}
+								if($allowget) $this->AddToTrace($propertyStr, PropType::Indis, $currentitemvalue, $lastPropObject != null && $lastPropObject->PropType != PropType::Empty);
 							}
 							else
 							{
@@ -281,10 +293,14 @@ class ParItem extends InnerItem
 						else if (!$this->IsObject())
 						{
 							unset($lastPropObject);
-							$lastPropObject = ComputeActions::GetPropValue($current, $vars, $localvars);
+							$propertyStr = $current->value;
+							$allowget = $this->AllowAccessProperty($propertyStr, PropType::Property);
+							if($allowget) $lastPropObject = ComputeActions::GetPropValue($current, $vars, $localvars);
+							else $lastPropObject = null;
 							unset($currentitemvalue);
 							if(!$lastPropObject) $currentitemvalue = null;
 							else $currentitemvalue = &$lastPropObject->Value;
+							if($allowget) $this->AddToTrace($propertyStr, PropType::Property, $currentitemvalue, $lastPropObject != null && $lastPropObject->PropType != PropType::Empty);
 						}
 				
 					}
@@ -360,6 +376,8 @@ class ParItem extends InnerItem
 						{
 							unset($waitAssigmentObject);
 							$waitAssigmentObject = &$lastPropObject;
+							if($waitAssigmentObject) $waitAssigmentObject->FullName = $propertyStr;
+							$propertyStr = '';
 							$assigment = $opstr;
 							unset($xoperator);
 							unset($previtem);
@@ -506,10 +524,23 @@ class ParItem extends InnerItem
 								{
 									if($currentitemvalue)
 									{
+										$propertyStr .= '.' . $currentitemvalue;
 										unset($lastPropObject);
-										$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
-										unset($lastvalue);
-										$lastvalue = &$lastPropObject->Value;
+										
+										if($this->AllowAccessProperty($propertyStr, PropType::Property))
+										{
+											$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+											unset($lastvalue);
+											$lastvalue = &$lastPropObject->Value;
+											$this->AddToTrace($propertyStr, PropType::Property, $lastvalue, $lastPropObject != null && $lastPropObject->PropType != PropType::Empty);
+										}
+										else
+										{
+											$lastPropObject = null;
+                                            $lastvalue = null;
+										}
+
+	
 									}
 								}
 								else
@@ -549,10 +580,22 @@ class ParItem extends InnerItem
 							$totalOp--;
 							if($this->BaseDecoder->Attributes->Flags & PardecodeFlags::PDF_AllowSubMemberAccess)
 							{
+								$propertyStr .= '.' . $currentitemvalue;
 								unset($lastPropObject);
-								$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
-								unset($lastvalue);
-								$lastvalue = &$lastPropObject->Value;
+
+								if($this->AllowAccessProperty($propertyStr, PropType::Property))
+								{
+									$lastPropObject = ComputeActions::GetProp($currentitemvalue, $lastvalue);
+									unset($lastvalue);
+									$lastvalue = &$lastPropObject->Value;
+									$this->AddToTrace($propertyStr, PropType::Property, $lastvalue, $lastPropObject != null && $lastPropObject->PropType != PropType::Empty);
+								}
+								else
+								{
+									$lastPropObject = null;
+									unset($lastvalue);
+                                    $lastvalue = null;
+								}
 							}
 							else
 							{
@@ -620,7 +663,7 @@ class ParItem extends InnerItem
 				$minuscount = 0;
 			}
 			
-            if ($waitAssigmentObject != null )
+            if ($waitAssigmentObject != null && $this->AllowAccessProperty($waitAssigmentObject->FullName, $waitAssigmentObject->PropType, true))
             {
                 $assignResult = null;
                 if($waitAssigmentObject->PropType != PropType::Empty && $waitAssigmentObject->PropertyInfo != null)
@@ -657,8 +700,8 @@ class ParItem extends InnerItem
 						}
                         break;
                 }
+				 if($assignResult) $this->AddToTrace($waitAssigmentObject->FullName, $waitAssigmentObject->PropType, $assignResult->AssignedValue, true, true);
             }			
-			
 			
 			if($this->IsObject())
 			{
@@ -677,6 +720,34 @@ class ParItem extends InnerItem
 				$cr->result[] = $lastvalue;
 			}
             return $cr;
+	}
+	private function AllowAccessProperty($propStr, $type, $isassign = false)
+	{
+		if ($this->Attributes->RestrictedProperties != null && count($this->Attributes->RestrictedProperties) > 0)
+		{
+
+			if(isset($this->Attributes->RestrictedProperties[$propStr]))
+			{
+				$prt = $this->Attributes->RestrictedProperties[$propStr];
+				if (($isassign && ($prt & ParPropRestrictedType::PRT_RESTRICT_SET) != 0) || (!$isassign && ($prt & ParPropRestrictedType::PRT_RESTRICT_GET) != 0)) return false;
+			}
+		}
+		;
+		return $this->Attributes->OnPropertyAccess == null || call_user_func_array($this->Attributes->OnPropertyAccess, array(new ParProperty($propStr, $type, $isassign)));
+	}
+	private function AddToTrace($propname, $type, &$value, $accessed = false, $isassign = false)
+	{
+		if (!$this->Attributes->Tracing->Enabled)
+		{
+			return;
+		}
+		$allowtrace = (!$isassign && $this->Attributes->Tracing->HasTraceThisType($type)) || ($isassign && $this->Attributes->Tracing->HasFlag(ParTraceFlags::PTF_TRACE_ASSIGN));
+		if (!$allowtrace) return;
+		$traceitem = new ParTracerItem($propname, $type);
+		$traceitem->Accessed = $accessed;
+		$traceitem->IsAssign = $isassign;
+		if ($this->Attributes->Tracing->HasFlag(ParTraceFlags::PTF_KEEP_VALUE)) $traceitem->Value = &$value;
+		$this->Attributes->Tracing->Add($traceitem);
 	}
 
 }

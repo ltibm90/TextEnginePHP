@@ -36,7 +36,9 @@ class ForeachEvulator extends BaseEvulator
 			{
 				break;
 			}
+			if ($this->Options->Max_ForEach_Loop !== 0 && $total > $this->Options->Max_ForEach_Loop) break;
 			$total++;
+
 		}
 		$this->DestroyLocals();
 		//$this->RemoveVar($varname);
