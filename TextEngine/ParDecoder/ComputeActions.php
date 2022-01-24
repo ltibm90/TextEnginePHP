@@ -200,7 +200,18 @@ class ComputeActions
 		}
 		return null;
 	}
-
+	public static function& GetPropEx($item, $vars, &$localvars = null)
+	{
+		$res = null;
+		if ($localvars) 
+		{
+			$res = &self::GetProp($item, $localvars);
+		}
+		if ($res === null || $res->PropType == PropType::Empty) {
+			unset($res);
+			$res = &self::GetProp($item, $vars);
+		}
+	}
 	/**  @param $item string */
 	public static function& GetProp($item, $vars)
 	{

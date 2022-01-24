@@ -173,7 +173,7 @@ class ParItem extends InnerItem
                                 else $propertyStr .= '.' . $prevvalue;
 								$allowget = $this->AllowAccessProperty($propertyStr, PropType::Indis);
 								unset($lastPropObject);
-								if($allowget) $lastPropObject = ComputeActions::GetProp($prevvalue, $varnew);
+								if($allowget) $lastPropObject = ComputeActions::GetPropEx($prevvalue, $varnew);
 								else $lastPropObject = null;
 								unset($prop);
 								if($lastPropObject)	$prop = &$lastPropObject->Value;
